@@ -1,4 +1,3 @@
-
 terraform {
   required_version = ">= 1.9.0"
 
@@ -9,8 +8,8 @@ terraform {
     }
 
     node-lambda-packager = {
-        source = "jSherz/node-lambda-packager"
-        version = "1.3.1"
+      source  = "jSherz/node-lambda-packager"
+      version = "1.3.1"
     }
   }
 }

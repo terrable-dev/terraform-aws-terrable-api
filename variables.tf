@@ -4,10 +4,10 @@ variable "api_name" {
 
 variable "handlers" {
   type = map(object({
-    source: string
+    source : string
     http = object({
       path : string
-      method: string
+      method : string
     })
   }))
 }

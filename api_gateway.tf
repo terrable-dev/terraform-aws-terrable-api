@@ -14,13 +14,13 @@ data "node-lambda-packager_package" "handlers" {
 }
 
 resource "aws_lambda_function" "handlers" {
-  for_each = local.http_handlers
-  filename = data.node-lambda-packager_package.handlers[each.key].filename
-  function_name = "${var.api_name}-${each.value.name}"
+  for_each         = local.http_handlers
+  filename         = data.node-lambda-packager_package.handlers[each.key].filename
+  function_name    = "${var.api_name}-${each.value.name}"
   source_code_hash = data.node-lambda-packager_package.handlers[each.key].source_code_hash
-  role          = aws_iam_role.lambda_role.arn
-  handler = "index.handler"
-  runtime = "nodejs20.x"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "index.handler"
+  runtime          = "nodejs20.x"
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
@@ -62,14 +62,14 @@ resource "aws_apigatewayv2_route" "lambda_routes" {
 resource "aws_apigatewayv2_integration" "lambda_integrations" {
   for_each = local.http_handlers
 
-  api_id = aws_apigatewayv2_api.api_gateway.id
-  integration_type = "AWS_PROXY"
+  api_id             = aws_apigatewayv2_api.api_gateway.id
+  integration_type   = "AWS_PROXY"
   integration_method = "POST"
-  integration_uri = aws_lambda_function.handlers[each.key].invoke_arn
+  integration_uri    = aws_lambda_function.handlers[each.key].invoke_arn
 }
 
 resource "aws_apigatewayv2_api" "api_gateway" {
-  name = var.api_name
+  name          = var.api_name
   protocol_type = "HTTP"
 }
 
