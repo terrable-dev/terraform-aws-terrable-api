@@ -37,13 +37,6 @@ variables {
   }
 }
 
-run "lambda_function_names" {
-  assert {
-    condition     = aws_lambda_function.handlers["TestHandler"].function_name == "${var.api_name}-TestHandler"
-    error_message = "incorrect Lambda function name"
-  }
-}
-
 run "api_gateway_has_correct_name" {
   assert {
     condition     = aws_apigatewayv2_api.api_gateway.name == "test-api"
@@ -54,14 +47,52 @@ run "api_gateway_has_correct_name" {
 run "default_stage_name" {
   assert {
     condition     = aws_apigatewayv2_stage.default.name == "$default"
-    error_message = "Default stage name not set"
+    error_message = "default stage name not set"
   }
 }
 
-run "cloudwatch_log_group_created" {
+run "lambda_function_names" {
   assert {
-    condition     = aws_cloudwatch_log_group.lambda_log_groups["TestHandler"].name == "/aws/lambda/test-api-TestHandler"
-    error_message = "CloudWatch Log Group name is incorrect"
+    condition = alltrue([
+      for key, handler in var.handlers :
+      aws_lambda_function.handlers[key].function_name == format("%s-TestHandler", var.api_name)
+    ])
+
+    error_message = "expected cloudwatch log groups not created"
+  }
+}
+
+run "cloudwatch_log_groups_created" {
+  assert {
+    condition = alltrue([
+      for key, handler in var.handlers :
+      aws_cloudwatch_log_group.lambda_log_groups[key].name == format("/aws/lambda/test-api-%s", key)
+    ])
+
+    error_message = "expected cloudwatch log groups not created"
+  }
+}
+
+run "attach_lambda_role" {
+  assert {
+    condition = alltrue([
+      for key, handler in var.handlers :
+      aws_lambda_function.handlers[key].role == aws_iam_role.lambda_role.arn
+    ])
+
+    error_message = "lambda roles not attached"
+  }
+}
+
+run "lambda_role_cloudwatch_attachment" {
+  assert {
+    condition     = aws_iam_role_policy_attachment.lambda_logs.policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    error_message = "lambda cloudwatch attachment missing basic execution policy"
+  }
+
+  assert {
+    condition     = aws_iam_role_policy_attachment.lambda_logs.role == aws_iam_role.lambda_role.name
+    error_message = "lambda cloudwatch attachment not attached to lambda role"
   }
 }
 
@@ -73,11 +104,11 @@ run "all_routes_added" {
       aws_apigatewayv2_route.lambda_routes[key].route_key == "${handler.http.method} ${handler.http.path}"
     ])
 
-    error_message = "One or more routes have not been mapped"
+    error_message = "one or more routes have not been mapped"
   }
 
   assert {
     condition     = length(keys(aws_apigatewayv2_route.lambda_routes)) == length(keys(var.handlers))
-    error_message = "One or more routes have not been mapped"
+    error_message = "one or more routes have not been mapped"
   }
 }
