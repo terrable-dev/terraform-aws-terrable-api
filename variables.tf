@@ -11,3 +11,12 @@ variable "handlers" {
     })
   }))
 }
+
+variable "httpApi" {
+  type = object({
+    custom_domain : optional(string)
+    certificate_arn : optional(string)
+  })
+
+  default = null
+}

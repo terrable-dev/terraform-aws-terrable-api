@@ -1,27 +1,5 @@
 mock_provider "aws" {
-  mock_resource "aws_iam_role" {
-    defaults = {
-      arn = "arn:aws:iam::123456789012:role/example-role"
-    }
-  }
-
-  mock_resource "aws_lambda_permission" {
-    defaults = {
-      arn = "arn:aws:execute-api:us-east-1:123456789012:abcdef123/*/GET/test"
-    }
-  }
-
-  mock_resource "aws_lambda_function" {
-    defaults = {
-      invoke_arn = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:123456789012:function:test-function/invocations"
-    }
-  }
-
-  mock_resource "aws_apigatewayv2_api" {
-    defaults = {
-      execution_arn = "arn:aws:execute-api:us-east-1:123456789012:abcdef123"
-    }
-  }
+  source = "./tests/mocks"
 }
 
 variables {
