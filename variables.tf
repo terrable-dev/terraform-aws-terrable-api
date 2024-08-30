@@ -12,7 +12,7 @@ variable "handlers" {
   }))
 }
 
-variable "httpApi" {
+variable "http_api" {
   type = object({
     custom_domain : optional(string)
     certificate_arn : optional(string)

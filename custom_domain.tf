@@ -1,6 +1,6 @@
 resource "aws_acm_certificate" "domain_cert" {
   count             = local.create_certificate ? 1 : 0
-  domain_name       = var.httpApi.custom_domain
+  domain_name       = var.http_api.custom_domain
   validation_method = "DNS"
 
   lifecycle {
@@ -10,7 +10,7 @@ resource "aws_acm_certificate" "domain_cert" {
 
 data "aws_route53_zone" "domain_zone" {
   count = local.http_custom_domain != null ? 1 : 0
-  name  = join(".", slice(split(".", var.httpApi.custom_domain), 1, length(split(".", var.httpApi.custom_domain))))
+  name  = join(".", slice(split(".", var.http_api.custom_domain), 1, length(split(".", var.http_api.custom_domain))))
 }
 
 resource "aws_apigatewayv2_domain_name" "custom_domain" {
@@ -18,7 +18,7 @@ resource "aws_apigatewayv2_domain_name" "custom_domain" {
   domain_name = local.http_custom_domain
 
   domain_name_configuration {
-    certificate_arn = local.create_certificate ? aws_acm_certificate.domain_cert[0].arn : var.httpApi.certificate_arn
+    certificate_arn = local.create_certificate ? aws_acm_certificate.domain_cert[0].arn : var.http_api.certificate_arn
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
@@ -65,7 +65,7 @@ resource "aws_route53_record" "cert_validation" {
 resource "aws_route53_record" "api_domain" {
   count   = local.http_custom_domain != null ? 1 : 0
   zone_id = data.aws_route53_zone.domain_zone[0].zone_id
-  name    = var.httpApi.custom_domain
+  name    = var.http_api.custom_domain
   type    = "A"
 
   alias {

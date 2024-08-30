@@ -18,6 +18,6 @@ locals {
 }
 
 locals {
-  http_custom_domain = try(var.httpApi.custom_domain, null)
-  create_certificate = try(var.httpApi.custom_domain, null) != null && try(var.httpApi.certificate_arn, null) == null
+  http_custom_domain = try(var.http_api.custom_domain, null)
+  create_certificate = try(var.http_api.custom_domain, null) != null && try(var.http_api.certificate_arn, null) == null
 }

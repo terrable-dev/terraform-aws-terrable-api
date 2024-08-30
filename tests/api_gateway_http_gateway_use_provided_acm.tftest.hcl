@@ -4,7 +4,7 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
-  httpApi = {
+  http_api = {
     custom_domain   = "testdomain.test.com"
     certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/existing-cert-id"
   }
@@ -28,7 +28,7 @@ run "no_new_acm_certificate_created" {
 
 run "custom_domain_uses_existing_certificate" {
   assert {
-    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].certificate_arn == var.httpApi.certificate_arn
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].certificate_arn == var.http_api.certificate_arn
     error_message = "Custom domain is not using the existing ACM certificate"
   }
 }
@@ -49,7 +49,7 @@ run "no_certificate_validation_records_created" {
 
 run "creates_http_api_custom_domain" {
   assert {
-    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.httpApi.custom_domain
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.http_api.custom_domain
     error_message = "Custom domain name does not match the expected value"
   }
 }
