@@ -14,7 +14,7 @@ data "node-lambda-packager_package" "handlers" {
 }
 
 resource "aws_lambda_function" "handlers" {
-  for_each         = local.http_handlers
+  for_each          = local.http_handlers
   filename         = data.node-lambda-packager_package.handlers[each.key].filename
   function_name    = "${var.api_name}-${each.value.name}"
   source_code_hash = data.node-lambda-packager_package.handlers[each.key].source_code_hash
