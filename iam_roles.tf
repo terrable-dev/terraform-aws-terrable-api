@@ -46,9 +46,9 @@ resource "aws_iam_role_policy_attachment" "global_policies" {
     for pair in flatten([
       for handler_key, handler in var.handlers : [
         for policy in coalesce(var.global_policies, []) : {
-          key = "${handler_key}-${policy}"
+          key         = "${handler_key}-${policy}"
           handler_key = handler_key
-          policy = policy
+          policy      = policy
         }
       ]
     ]) : pair.key => pair
@@ -63,9 +63,9 @@ resource "aws_iam_role_policy_attachment" "handler_policies" {
     for pair in flatten([
       for handler_key, handler in var.handlers : [
         for policy in coalesce(handler.policies, []) : {
-          key = "${handler_key}-${policy}"
+          key         = "${handler_key}-${policy}"
           handler_key = handler_key
-          policy = policy
+          policy      = policy
         }
       ]
     ]) : pair.key => pair

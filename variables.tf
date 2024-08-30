@@ -23,7 +23,7 @@ variable "http_api" {
 }
 
 variable "global_policies" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
