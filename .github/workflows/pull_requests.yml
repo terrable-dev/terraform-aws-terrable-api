@@ -1,0 +1,55 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    paths:
+      - "*"
+    branches:
+      - "main"
+  workflow_dispatch:
+
+jobs:
+  validate-terraform:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: hashicorp/setup-terraform@v3
+      
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Terraform
+        run: |-
+          terraform init
+          terraform validate
+
+  lint-terraform:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: hashicorp/setup-terraform@v3
+      
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Lint Terraform
+        run: |-
+          terraform fmt -check -recursive
+          
+  test-terraform:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: hashicorp/setup-terraform@v3
+      
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test Terraform
+        run: |-
+          terraform init
+          terraform test
+
