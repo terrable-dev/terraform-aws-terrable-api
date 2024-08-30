@@ -12,7 +12,7 @@ module "example_api" {
   source = "terrable-dev/terrable-api/aws"
   version = "0.0.1"
   api_name = "example-api"
-  
+
   handlers = {
     ExampleHandler: {
         source = "./ExampleHandler.ts"

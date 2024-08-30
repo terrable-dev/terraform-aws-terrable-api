@@ -62,18 +62,6 @@ run "attach_lambda_role" {
   }
 }
 
-run "lambda_role_cloudwatch_attachment" {
-  assert {
-    condition     = aws_iam_role_policy_attachment.lambda_logs.policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-    error_message = "lambda cloudwatch attachment missing basic execution policy"
-  }
-
-  assert {
-    condition     = aws_iam_role_policy_attachment.lambda_logs.role == aws_iam_role.lambda_role.name
-    error_message = "lambda cloudwatch attachment not attached to lambda role"
-  }
-}
-
 run "all_routes_added" {
   assert {
     condition = alltrue([
@@ -88,5 +76,24 @@ run "all_routes_added" {
   assert {
     condition     = length(keys(aws_apigatewayv2_route.lambda_routes)) == length(keys(var.handlers))
     error_message = "one or more routes have not been mapped"
+  }
+}
+
+run "verify_lambda_basic_execution_role" {
+  assert {
+    condition     = aws_iam_role_policy_attachment.lambda_logs.policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    error_message = "AWSLambdaBasicExecutionRole is not correctly attached"
+  }
+}
+
+run "lambda_role_cloudwatch_attachment" {
+  assert {
+    condition     = aws_iam_role_policy_attachment.lambda_logs.policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    error_message = "lambda cloudwatch attachment missing basic execution policy"
+  }
+
+  assert {
+    condition     = aws_iam_role_policy_attachment.lambda_logs.role == aws_iam_role.lambda_role.name
+    error_message = "lambda cloudwatch attachment not attached to lambda role"
   }
 }
