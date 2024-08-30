@@ -42,35 +42,25 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 # User-provided policies
 
 resource "aws_iam_role_policy_attachment" "global_policies" {
-  for_each = {
-    for pair in flatten([
-      for handler_key, handler in var.handlers : [
-        for policy in coalesce(var.global_policies, []) : {
-          key         = "${handler_key}-${policy}"
-          handler_key = handler_key
-          policy      = policy
-        }
-      ]
-    ]) : pair.key => pair
-  }
+  for_each = merge([
+    for handler_key, handler in var.handlers :
+    { for policy_name, policy_arn in coalesce(var.global_policies, {}) :
+      "${handler_key}-${policy_name}-global" => policy_arn
+    }
+  ]...)
 
   role       = aws_iam_role.lambda_role.name
-  policy_arn = each.value.policy
+  policy_arn = each.value
 }
 
 resource "aws_iam_role_policy_attachment" "handler_policies" {
-  for_each = {
-    for pair in flatten([
-      for handler_key, handler in var.handlers : [
-        for policy in coalesce(handler.policies, []) : {
-          key         = "${handler_key}-${policy}"
-          handler_key = handler_key
-          policy      = policy
-        }
-      ]
-    ]) : pair.key => pair
-  }
+  for_each = merge([
+    for handler_key, handler in var.handlers :
+    { for policy_name, policy_arn in coalesce(handler.policies, {}) :
+      "${handler_key}-${policy_name}" => policy_arn
+    }
+  ]...)
 
   role       = aws_iam_role.lambda_role.name
-  policy_arn = each.value.policy
+  policy_arn = each.value
 }
