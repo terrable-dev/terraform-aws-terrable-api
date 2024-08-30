@@ -4,7 +4,7 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
-  httpApi = {
+  http_api = {
     custom_domain = "testdomain.test.com"
   }
   handlers = {
@@ -27,7 +27,7 @@ run "acm_certificate_created" {
 
 run "acm_certificate_domain_name" {
   assert {
-    condition     = aws_acm_certificate.domain_cert[0].domain_name == var.httpApi.custom_domain
+    condition     = aws_acm_certificate.domain_cert[0].domain_name == var.http_api.custom_domain
     error_message = "ACM certificate domain name does not match the custom domain"
   }
 }

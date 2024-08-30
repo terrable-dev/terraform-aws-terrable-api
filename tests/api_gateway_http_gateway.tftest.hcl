@@ -4,7 +4,7 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
-  httpApi = {
+  http_api = {
     custom_domain = "testdomain.test.com"
   }
   handlers = {
@@ -20,7 +20,7 @@ variables {
 
 run "creates_http_api_custom_domain" {
   assert {
-    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.httpApi.custom_domain
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.http_api.custom_domain
     error_message = "Custom domain name does not match the expected value"
   }
 }
@@ -34,7 +34,7 @@ run "creates_api_mapping" {
 
 run "creates_custom_domain" {
   assert {
-    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.httpApi.custom_domain
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.http_api.custom_domain
     error_message = "Custom domain name does not match the expected value"
   }
 }
@@ -76,7 +76,7 @@ run "acm_certificate_created" {
 
 run "acm_certificate_domain_name" {
   assert {
-    condition     = aws_acm_certificate.domain_cert[0].domain_name == var.httpApi.custom_domain
+    condition     = aws_acm_certificate.domain_cert[0].domain_name == var.http_api.custom_domain
     error_message = "ACM certificate domain name does not match the custom domain"
   }
 }
