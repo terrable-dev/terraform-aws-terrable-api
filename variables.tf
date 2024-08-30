@@ -5,6 +5,7 @@ variable "api_name" {
 variable "handlers" {
   type = map(object({
     source : string
+    policies : optional(map(string))
     http = object({
       path : string
       method : string
@@ -19,4 +20,9 @@ variable "http_api" {
   })
 
   default = null
+}
+
+variable "global_policies" {
+  type    = map(string)
+  default = {}
 }

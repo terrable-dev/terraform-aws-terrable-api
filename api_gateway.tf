@@ -23,28 +23,6 @@ resource "aws_lambda_function" "handlers" {
   runtime          = "nodejs20.x"
 }
 
-resource "aws_iam_role" "lambda_role" {
-  name = "${var.api_name}-lambda-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.api_gateway.id
   name        = "$default"
@@ -71,21 +49,4 @@ resource "aws_apigatewayv2_integration" "lambda_integrations" {
 resource "aws_apigatewayv2_api" "api_gateway" {
   name          = var.api_name
   protocol_type = "HTTP"
-}
-
-resource "aws_lambda_permission" "lambda_api_gateway_execution_permission" {
-  for_each = var.handlers
-
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.handlers[each.key].function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.api_gateway.execution_arn}/*/*"
-}
-
-resource "aws_cloudwatch_log_group" "lambda_log_groups" {
-  for_each = local.handlers
-
-  name              = "/aws/lambda/${aws_lambda_function.handlers[each.key].function_name}"
-  retention_in_days = 1
 }
