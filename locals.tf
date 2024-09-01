@@ -11,6 +11,7 @@ locals {
       name   = handler_name,
       source = handler.source,
       http   = try(handler.http, null),
+      environment_vars = merge(coalesce(var.global_environment_variables, {}), coalesce(handler.environment_variables, {}))
     }
 
     if try(handler.http, null) != null
