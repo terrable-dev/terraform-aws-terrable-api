@@ -21,6 +21,10 @@ resource "aws_lambda_function" "handlers" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.handler"
   runtime          = "nodejs20.x"
+
+  environment {
+    variables = each.value.environment_vars
+  }
 }
 
 resource "aws_apigatewayv2_stage" "default" {
