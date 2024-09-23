@@ -34,11 +34,19 @@ resource "aws_apigatewayv2_stage" "default" {
 }
 
 resource "aws_apigatewayv2_route" "lambda_routes" {
-  for_each = local.http_handlers
+  for_each = merge([
+    for handler_name, handler in local.http_handlers : {
+      for method, path in handler.http : "${handler_name}_${method}" => {
+        handler_name = handler_name
+        method       = upper(method)
+        path         = path
+      }
+    }
+  ]...)
 
   api_id    = aws_apigatewayv2_api.api_gateway.id
-  route_key = "${each.value.http.method} ${each.value.http.path}"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_integrations[each.key].id}"
+  route_key = "${each.value.method} ${each.value.path}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integrations[each.value.handler_name].id}"
 }
 
 resource "aws_apigatewayv2_integration" "lambda_integrations" {
