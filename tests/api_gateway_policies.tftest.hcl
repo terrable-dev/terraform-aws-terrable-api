@@ -15,8 +15,7 @@ variables {
       }
       source = "./tests/handler.js"
       http = {
-        method = "GET"
-        path   = "/1"
+        GET = "/1"
       }
     }
     TestHandlerTwo : {
@@ -25,8 +24,7 @@ variables {
       }
       source = "./tests/handler.js"
       http = {
-        method = "GET"
-        path   = "/2"
+        GET = "/2"
       }
     }
     TestHandlerCombined : {
@@ -36,8 +34,7 @@ variables {
       }
       source = "./tests/handler.js"
       http = {
-        method = "GET"
-        path   = "/3"
+        GET = "/3"
       }
     }
   }

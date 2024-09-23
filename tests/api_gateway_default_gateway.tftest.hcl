@@ -8,8 +8,7 @@ variables {
     TestHandler : {
       source = "./tests/handler.js"
       http = {
-        method = "GET"
-        path   = "/"
+        GET = "/"
       }
     }
   }
@@ -65,17 +64,22 @@ run "attach_lambda_role" {
 run "all_routes_added" {
   assert {
     condition = alltrue([
-      for key, handler in var.handlers :
-      contains(keys(aws_apigatewayv2_route.lambda_routes), key) &&
-      aws_apigatewayv2_route.lambda_routes[key].route_key == "${handler.http.method} ${handler.http.path}"
+      for handler_name, handler in var.handlers :
+      alltrue([
+        for method, path in handler.http :
+        contains(keys(aws_apigatewayv2_route.lambda_routes), "${handler_name}_${method}") &&
+        aws_apigatewayv2_route.lambda_routes["${handler_name}_${method}"].route_key == "${upper(method)} ${path}"
+      ])
     ])
 
-    error_message = "one or more routes have not been mapped"
+    error_message = "one or more routes have not been mapped correctly"
   }
 
   assert {
-    condition     = length(keys(aws_apigatewayv2_route.lambda_routes)) == length(keys(var.handlers))
-    error_message = "one or more routes have not been mapped"
+    condition = length(keys(aws_apigatewayv2_route.lambda_routes)) == sum([
+      for handler in values(var.handlers) : length(keys(handler.http))
+    ])
+    error_message = "the number of routes doesn't match the number of defined HTTP methods across all handlers"
   }
 }
 

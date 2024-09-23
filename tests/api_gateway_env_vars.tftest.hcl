@@ -17,15 +17,13 @@ variables {
       }
       source = "./tests/handler.js"
       http = {
-        method = "GET"
-        path   = "/"
+        GET = "/"
       }
     }
     HandlerTwo : {
       source = "./tests/handler.js"
       http = {
-        method = "GET"
-        path   = "/"
+        GET = "/"
       }
     }
   }

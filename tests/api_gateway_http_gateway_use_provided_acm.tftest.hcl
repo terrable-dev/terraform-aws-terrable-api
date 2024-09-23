@@ -12,8 +12,7 @@ variables {
     TestHandler : {
       source = "./tests/handler.js"
       http = {
-        method = "GET"
-        path   = "/"
+        GET = "/"
       }
     }
   }

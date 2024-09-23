@@ -7,11 +7,19 @@ variable "handlers" {
     source : string
     policies : optional(map(string))
     environment_variables : optional(map(string))
-    http = object({
-      path : string
-      method : string
-    })
+    http = map(string)
   }))
+
+  validation {
+    condition = alltrue([
+      for handler in values(var.handlers) :
+      alltrue([
+        for method in keys(handler.http) :
+        contains(["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "ANY"], upper(method))
+      ])
+    ])
+    error_message = "The HTTP methods must be one of GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS or ANY."
+  }
 }
 
 variable "http_api" {
