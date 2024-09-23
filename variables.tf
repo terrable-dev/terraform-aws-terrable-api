@@ -18,7 +18,7 @@ variable "handlers" {
       contains(["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "ANY"], upper(method))
     ])
   ])
-  error_message = "The HTTP methods must be one of GET, POST, PUT, DELETE, PATCH, HEAD, or OPTIONS."
+  error_message = "The HTTP methods must be one of GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS or ANY."
 }
 }
 
