@@ -65,11 +65,11 @@ run "all_routes_added" {
   assert {
     condition = alltrue([
       for handler_name, handler in var.handlers :
-        alltrue([
-          for method, path in handler.http :
-            contains(keys(aws_apigatewayv2_route.lambda_routes), "${handler_name}_${method}") &&
-            aws_apigatewayv2_route.lambda_routes["${handler_name}_${method}"].route_key == "${upper(method)} ${path}"
-        ])
+      alltrue([
+        for method, path in handler.http :
+        contains(keys(aws_apigatewayv2_route.lambda_routes), "${handler_name}_${method}") &&
+        aws_apigatewayv2_route.lambda_routes["${handler_name}_${method}"].route_key == "${upper(method)} ${path}"
+      ])
     ])
 
     error_message = "one or more routes have not been mapped correctly"
