@@ -63,5 +63,5 @@ resource "aws_apigatewayv2_integration" "lambda_integrations" {
 resource "aws_apigatewayv2_api" "api_gateway" {
   name          = var.api_name
   protocol_type = "HTTP"
-  tags          = var.http_api != null ? var.http_api.tags : null
+  tags          = try(var.http_api.tags, null)
 }
