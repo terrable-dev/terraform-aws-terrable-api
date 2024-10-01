@@ -8,6 +8,7 @@ variable "handlers" {
     policies : optional(map(string))
     environment_variables : optional(map(string))
     http = map(string)
+    tags = optional(map(string))
   }))
 
   validation {
@@ -26,8 +27,8 @@ variable "http_api" {
   type = object({
     custom_domain : optional(string)
     certificate_arn : optional(string)
+    tags : optional(map(string))
   })
-
   default = null
 }
 

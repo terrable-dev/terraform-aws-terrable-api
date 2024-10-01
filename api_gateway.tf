@@ -25,6 +25,8 @@ resource "aws_lambda_function" "handlers" {
   environment {
     variables = each.value.environment_vars
   }
+
+  tags = merge(each.value.tags)
 }
 
 resource "aws_apigatewayv2_stage" "default" {
@@ -61,4 +63,5 @@ resource "aws_apigatewayv2_integration" "lambda_integrations" {
 resource "aws_apigatewayv2_api" "api_gateway" {
   name          = var.api_name
   protocol_type = "HTTP"
+  tags          = var.http_api != null ? var.http_api.tags : null
 }
