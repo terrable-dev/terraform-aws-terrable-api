@@ -2,6 +2,17 @@ variable "api_name" {
   type = string
 }
 
+variable "vpc" {
+  type = object({
+    subnet_ids         = list(string)
+    security_group_ids = list(string)
+  })
+  default = {
+    subnet_ids         = []
+    security_group_ids = []
+  }
+}
+
 variable "handlers" {
   type = map(object({
     source : string

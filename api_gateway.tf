@@ -26,6 +26,11 @@ resource "aws_lambda_function" "handlers" {
     variables = each.value.environment_vars
   }
 
+  vpc_config {
+    subnet_ids         = try(var.vpc.subnet_ids, [])
+    security_group_ids = try(var.vpc.security_group_ids, [])
+  }
+
   tags = merge(each.value.tags)
 }
 
