@@ -49,3 +49,15 @@ run "verify_lambda_vpc_config" {
     error_message = "Security group ID does not match expected value"
   }
 }
+
+run "lambda_role_vpc_attachment" {
+  assert {
+    condition     = aws_iam_role_policy_attachment.vpc_execution_role[0].policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+    error_message = "lambda VPC policy attachment missing"
+  }
+
+  assert {
+    condition     = aws_iam_role_policy_attachment.vpc_execution_role[0].role == aws_iam_role.lambda_role.name
+    error_message = "lambda VPC policy attachment missing"
+  }
+}

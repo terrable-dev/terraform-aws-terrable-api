@@ -105,3 +105,12 @@ run "test_TestHandlerCombined_policies" {
     error_message = "TestHandlerCombined does not have the expected GlobalPolicy2 policy attached"
   }
 }
+
+# If a VPC is not specified, do not attach VPC policies
+
+run "lambda_role_vpc_attachment" {
+  assert {
+    condition     = length(aws_iam_role_policy_attachment.vpc_execution_role) == 0
+    error_message = "lambda VPC policy has been attached unnecessarily"
+  }
+}
