@@ -26,7 +26,17 @@ resource "aws_lambda_function" "handlers" {
     variables = each.value.environment_vars
   }
 
+  vpc_config {
+    subnet_ids         = try(var.vpc.subnet_ids, [])
+    security_group_ids = try(var.vpc.security_group_ids, [])
+  }
+
   tags = merge(each.value.tags)
+
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_logs,
+    aws_iam_role_policy_attachment.vpc_execution_role,
+  ]
 }
 
 resource "aws_apigatewayv2_stage" "default" {

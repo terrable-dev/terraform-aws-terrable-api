@@ -39,6 +39,12 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy_attachment" "vpc_execution_role" {
+  count      = length(var.vpc.subnet_ids) > 0 || length(var.vpc.security_group_ids) > 0 ? 1 : 0
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
 # User-provided policies
 
 resource "aws_iam_role_policy_attachment" "global_policies" {
