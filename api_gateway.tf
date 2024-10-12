@@ -33,7 +33,7 @@ resource "aws_lambda_function" "handlers" {
 
   tags = merge(each.value.tags)
 
-  depends_on = [ 
+  depends_on = [
     aws_iam_role_policy_attachment.lambda_logs,
     aws_iam_role_policy_attachment.vpc_execution_role,
   ]
