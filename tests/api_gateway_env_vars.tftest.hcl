@@ -4,9 +4,6 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
-  http_api = {
-    custom_domain = "testdomain.test.com"
-  }
   global_environment_variables = {
     GLOBAL_ONE = "global-value"
   }
