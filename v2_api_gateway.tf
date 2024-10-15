@@ -18,7 +18,7 @@ resource "aws_lambda_function" "handlers" {
   filename         = data.node-lambda-packager_package.handlers[each.key].filename
   function_name    = "${var.api_name}-${each.value.name}"
   source_code_hash = data.node-lambda-packager_package.handlers[each.key].source_code_hash
-  role             = aws_iam_role.lambda_role.arn
+  role             = aws_iam_role.lambda_role[0].arn
   handler          = "index.handler"
   runtime          = "nodejs20.x"
 
@@ -40,7 +40,8 @@ resource "aws_lambda_function" "handlers" {
 }
 
 resource "aws_apigatewayv2_stage" "default" {
-  api_id      = aws_apigatewayv2_api.api_gateway.id
+  count = local.api_gateway_version == "v2" ? 1 : 0
+  api_id      = aws_apigatewayv2_api.api_gateway[0].id
   name        = "$default"
   auto_deploy = true
 }
@@ -56,7 +57,7 @@ resource "aws_apigatewayv2_route" "lambda_routes" {
     }
   ]...)
 
-  api_id    = aws_apigatewayv2_api.api_gateway.id
+  api_id    = aws_apigatewayv2_api.api_gateway[0].id
   route_key = "${each.value.method} ${each.value.path}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integrations[each.value.handler_name].id}"
 }
@@ -64,13 +65,14 @@ resource "aws_apigatewayv2_route" "lambda_routes" {
 resource "aws_apigatewayv2_integration" "lambda_integrations" {
   for_each = local.http_handlers
 
-  api_id             = aws_apigatewayv2_api.api_gateway.id
+  api_id             = aws_apigatewayv2_api.api_gateway[0].id
   integration_type   = "AWS_PROXY"
   integration_method = "POST"
   integration_uri    = aws_lambda_function.handlers[each.key].invoke_arn
 }
 
 resource "aws_apigatewayv2_api" "api_gateway" {
+  count = local.api_gateway_version == "v2" ? 1 : 0
   name          = var.api_name
   protocol_type = "HTTP"
   tags          = try(var.http_api.tags, null)

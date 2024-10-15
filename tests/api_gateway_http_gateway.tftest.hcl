@@ -54,14 +54,14 @@ run "custom_domain_configuration" {
 
 run "api_stage_auto_deploy" {
   assert {
-    condition     = aws_apigatewayv2_stage.default.auto_deploy == true
+    condition     = aws_apigatewayv2_stage.default[0].auto_deploy == true
     error_message = "API stage auto deploy not enabled"
   }
 }
 
 run "api_stage_linked_to_custom_domain" {
   assert {
-    condition     = aws_apigatewayv2_api_mapping.custom_domain_mapping[0].stage == aws_apigatewayv2_stage.default.id
+    condition     = aws_apigatewayv2_api_mapping.custom_domain_mapping[0].stage == aws_apigatewayv2_stage.default[0].id
     error_message = "API stage not correctly linked to custom domain"
   }
 }

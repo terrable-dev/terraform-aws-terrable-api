@@ -16,14 +16,14 @@ variables {
 
 run "api_gateway_has_correct_name" {
   assert {
-    condition     = aws_apigatewayv2_api.api_gateway.name == "test-api"
+    condition     = aws_apigatewayv2_api.api_gateway[0].name == "test-api"
     error_message = "incorrect API Gateway name"
   }
 }
 
 run "default_stage_name" {
   assert {
-    condition     = aws_apigatewayv2_stage.default.name == "$default"
+    condition     = aws_apigatewayv2_stage.default[0].name == "$default"
     error_message = "default stage name not set"
   }
 }
@@ -54,7 +54,7 @@ run "attach_lambda_role" {
   assert {
     condition = alltrue([
       for key, handler in var.handlers :
-      aws_lambda_function.handlers[key].role == aws_iam_role.lambda_role.arn
+      aws_lambda_function.handlers[key].role == aws_iam_role.lambda_role[0].arn
     ])
 
     error_message = "lambda roles not attached"
@@ -85,19 +85,19 @@ run "all_routes_added" {
 
 run "verify_lambda_basic_execution_role" {
   assert {
-    condition     = aws_iam_role_policy_attachment.lambda_logs.policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    condition     = aws_iam_role_policy_attachment.lambda_logs[0].policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
     error_message = "AWSLambdaBasicExecutionRole is not correctly attached"
   }
 }
 
 run "lambda_role_cloudwatch_attachment" {
   assert {
-    condition     = aws_iam_role_policy_attachment.lambda_logs.policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    condition     = aws_iam_role_policy_attachment.lambda_logs[0].policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
     error_message = "lambda cloudwatch attachment missing basic execution policy"
   }
 
   assert {
-    condition     = aws_iam_role_policy_attachment.lambda_logs.role == aws_iam_role.lambda_role.name
+    condition     = aws_iam_role_policy_attachment.lambda_logs[0].role == aws_iam_role.lambda_role[0].name
     error_message = "lambda cloudwatch attachment not attached to lambda role"
   }
 }

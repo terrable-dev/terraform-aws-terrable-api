@@ -30,9 +30,9 @@ resource "aws_apigatewayv2_domain_name" "custom_domain" {
 
 resource "aws_apigatewayv2_api_mapping" "custom_domain_mapping" {
   count       = local.http_custom_domain != null ? 1 : 0
-  api_id      = aws_apigatewayv2_api.api_gateway.id
+  api_id      = aws_apigatewayv2_api.api_gateway[0].id
   domain_name = aws_apigatewayv2_domain_name.custom_domain[0].id
-  stage       = aws_apigatewayv2_stage.default.id
+  stage       = aws_apigatewayv2_stage.default[0].id
 
   depends_on = [
     aws_apigatewayv2_domain_name.custom_domain,
