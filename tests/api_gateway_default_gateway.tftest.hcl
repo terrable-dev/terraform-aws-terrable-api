@@ -54,7 +54,7 @@ run "attach_lambda_role" {
   assert {
     condition = alltrue([
       for key, handler in var.handlers :
-      aws_lambda_function.handlers[key].role == aws_iam_role.lambda_role[0].arn
+      aws_lambda_function.handlers[key].role == aws_iam_role.lambda_role.arn
     ])
 
     error_message = "lambda roles not attached"
@@ -85,19 +85,19 @@ run "all_routes_added" {
 
 run "verify_lambda_basic_execution_role" {
   assert {
-    condition     = aws_iam_role_policy_attachment.lambda_logs[0].policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    condition     = aws_iam_role_policy_attachment.lambda_logs.policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
     error_message = "AWSLambdaBasicExecutionRole is not correctly attached"
   }
 }
 
 run "lambda_role_cloudwatch_attachment" {
   assert {
-    condition     = aws_iam_role_policy_attachment.lambda_logs[0].policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    condition     = aws_iam_role_policy_attachment.lambda_logs.policy_arn == "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
     error_message = "lambda cloudwatch attachment missing basic execution policy"
   }
 
   assert {
-    condition     = aws_iam_role_policy_attachment.lambda_logs[0].role == aws_iam_role.lambda_role[0].name
+    condition     = aws_iam_role_policy_attachment.lambda_logs.role == aws_iam_role.lambda_role.name
     error_message = "lambda cloudwatch attachment not attached to lambda role"
   }
 }

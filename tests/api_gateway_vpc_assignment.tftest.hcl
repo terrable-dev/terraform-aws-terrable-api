@@ -57,7 +57,7 @@ run "lambda_role_vpc_attachment" {
   }
 
   assert {
-    condition     = aws_iam_role_policy_attachment.vpc_execution_role[0].role == aws_iam_role.lambda_role[0].name
+    condition     = aws_iam_role_policy_attachment.vpc_execution_role[0].role == aws_iam_role.lambda_role.name
     error_message = "lambda VPC policy attachment missing"
   }
 }

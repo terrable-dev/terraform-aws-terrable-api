@@ -1,16 +1,9 @@
 locals {
-  api_gateway_version = "v2"
+  api_gateway_version = var.http_api != null ? "v2" : var.rest_api != null ? "v1" : "v2"
 }
 
 locals {
   handlers = {
-    for handler_name, handler in var.handlers : handler_name => {
-      name   = handler_name
-      source = handler.source
-    }
-  }
-
-  http_handlers = local.api_gateway_version == "v2" ? {
     for handler_name, handler in var.handlers : handler_name => {
       name             = handler_name,
       source           = handler.source,
@@ -19,9 +12,10 @@ locals {
       tags             = handler.tags != null ? handler.tags : {}
       policies = handler.policies
     }
+  }
 
-    if try(handler.http, null) != null
-  } : {}
+  http_handlers = local.api_gateway_version == "v2" ? local.handlers : {}
+  rest_handlers = local.api_gateway_version == "v1" ? local.handlers : {}
 }
 
 locals {
