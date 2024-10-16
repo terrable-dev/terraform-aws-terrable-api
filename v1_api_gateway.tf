@@ -89,15 +89,6 @@ resource "aws_api_gateway_method_settings" "settings" {
   depends_on = [ aws_api_gateway_deployment.api_deployment ]
 }
 
-# resource "aws_api_gateway_base_path_mapping" "mapping" {
-#   count = local.api_gateway_version == "v1" ? 1 : 0
-
-#   api_id      = aws_api_gateway_rest_api.api_gateway[0].id
-#   stage_name  = aws_api_gateway_stage.stage[0].stage_name
-#   domain_name = aws_api_gateway_domain_name.domain[0].domain_name
-#   base_path   = ""
-# }
-
 resource "aws_api_gateway_deployment" "api_deployment" {
   count = local.api_gateway_version == "v1" ? 1 : 0
 
@@ -123,4 +114,38 @@ resource "aws_api_gateway_deployment" "api_deployment" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_api_gateway_domain_name" "custom_domain" {
+  count           = local.api_gateway_version == "v1" && local.custom_domain != null ? 1 : 0
+  domain_name     = local.custom_domain
+  regional_certificate_arn = local.create_certificate ? local.certificate_arn : aws_acm_certificate.domain_cert[0].arn
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_base_path_mapping" "mapping" {
+  count           = local.api_gateway_version == "v1" && local.custom_domain != null ? 1 : 0
+  api_id      = aws_api_gateway_rest_api.api_gateway[0].id
+  stage_name  = aws_api_gateway_deployment.api_deployment[0].stage_name
+  domain_name = aws_api_gateway_domain_name.custom_domain[0].domain_name
+}
+
+resource "aws_route53_record" "api_v1_domain" {
+  count   = local.api_gateway_version == "v1" && local.custom_domain != null ? 1 : 0
+  zone_id = data.aws_route53_zone.domain_zone[0].zone_id
+  name    = local.custom_domain
+  type    = "A"
+
+  alias {
+    name                   = aws_api_gateway_domain_name.custom_domain[0].regional_domain_name
+    zone_id                = aws_api_gateway_domain_name.custom_domain[0].regional_zone_id
+    evaluate_target_health = false
+  }
+
+  depends_on = [
+    aws_api_gateway_domain_name.custom_domain,
+  ]
 }
