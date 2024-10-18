@@ -36,7 +36,7 @@ resource "aws_api_gateway_method" "lambda_methods" {
   for_each = merge([
     for handler_name, handler in local.rest_handlers : {
       for method, path in handler.http : "${handler_name}_${method}" => {
-        handler_name = handler_name
+        name = handler_name
         method       = upper(method)
         path         = path
       }
@@ -47,7 +47,7 @@ resource "aws_api_gateway_method" "lambda_methods" {
   resource_id   = (
     each.value.path == "/" ? 
       aws_api_gateway_rest_api.api_gateway[0].root_resource_id : 
-      aws_api_gateway_resource.lambda_resources["${each.value.handler_name}_${each.value.method}"].id
+      aws_api_gateway_resource.lambda_resources["${each.value.name}_${each.value.method}"].id
   )
   http_method   = each.value.method
   authorization = "NONE"
@@ -57,22 +57,24 @@ resource "aws_api_gateway_integration" "lambda_integrations" {
   for_each = merge([
     for handler_name, handler in local.rest_handlers : {
       for method, path in handler.http : "${handler_name}_${method}" => {
-        handler_name = handler_name
+        name = handler_name
         method       = upper(method)
         path         = path
       }
     }
   ]...)
-
   rest_api_id             = aws_api_gateway_rest_api.api_gateway[0].id
   resource_id             = (each.value.path == "/" ? 
     aws_api_gateway_rest_api.api_gateway[0].root_resource_id : 
-    aws_api_gateway_resource.lambda_resources["${each.value.handler_name}_${each.value.method}"].id
+    aws_api_gateway_resource.lambda_resources["${each.value.name}_${each.value.method}"].id
   )
+
   http_method             = each.value.method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.handlers[each.value.handler_name].invoke_arn
+  uri                     = aws_lambda_function.handlers[each.value.name].invoke_arn
+
+  depends_on = [ aws_api_gateway_method.lambda_methods ]
 }
 
 resource "aws_api_gateway_method_settings" "settings" {
@@ -119,11 +121,16 @@ resource "aws_api_gateway_deployment" "api_deployment" {
 resource "aws_api_gateway_domain_name" "custom_domain" {
   count           = local.api_gateway_version == "v1" && local.custom_domain != null ? 1 : 0
   domain_name     = local.custom_domain
-  regional_certificate_arn = local.create_certificate ? local.certificate_arn : aws_acm_certificate.domain_cert[0].arn
+  regional_certificate_arn = local.create_certificate ? aws_acm_certificate.domain_cert[0].arn : local.certificate_arn
 
   endpoint_configuration {
     types = ["REGIONAL"]
   }
+
+  depends_on = [
+      aws_acm_certificate_validation.cert_validation,
+     aws_apigatewayv2_domain_name.custom_domain 
+    ]
 }
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {
@@ -131,21 +138,4 @@ resource "aws_api_gateway_base_path_mapping" "mapping" {
   api_id      = aws_api_gateway_rest_api.api_gateway[0].id
   stage_name  = aws_api_gateway_deployment.api_deployment[0].stage_name
   domain_name = aws_api_gateway_domain_name.custom_domain[0].domain_name
-}
-
-resource "aws_route53_record" "api_v1_domain" {
-  count   = local.api_gateway_version == "v1" && local.custom_domain != null ? 1 : 0
-  zone_id = data.aws_route53_zone.domain_zone[0].zone_id
-  name    = local.custom_domain
-  type    = "A"
-
-  alias {
-    name                   = aws_api_gateway_domain_name.custom_domain[0].regional_domain_name
-    zone_id                = aws_api_gateway_domain_name.custom_domain[0].regional_zone_id
-    evaluate_target_health = false
-  }
-
-  depends_on = [
-    aws_api_gateway_domain_name.custom_domain,
-  ]
 }

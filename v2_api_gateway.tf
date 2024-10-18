@@ -60,22 +60,6 @@ resource "aws_apigatewayv2_domain_name" "custom_domain" {
 
   depends_on = [
     aws_acm_certificate_validation.cert_validation,
-  ]
-}
-
-resource "aws_route53_record" "api_v2_domain" {
-  count   = local.api_gateway_version == "v2" && local.custom_domain != null ? 1 : 0
-  zone_id = data.aws_route53_zone.domain_zone[0].zone_id
-  name    = local.custom_domain
-  type    = "A"
-
-  alias {
-    name                   = aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].target_domain_name
-    zone_id                = aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].hosted_zone_id
-    evaluate_target_health = false
-  }
-
-  depends_on = [
-    aws_apigatewayv2_domain_name.custom_domain,
+    aws_apigatewayv2_domain_name.custom_domain
   ]
 }
