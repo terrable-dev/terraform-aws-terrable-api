@@ -60,6 +60,5 @@ resource "aws_apigatewayv2_domain_name" "custom_domain" {
 
   depends_on = [
     aws_acm_certificate_validation.cert_validation,
-    aws_apigatewayv2_domain_name.custom_domain
   ]
 }
