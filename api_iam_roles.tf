@@ -1,8 +1,8 @@
 locals {
   api_gateway_source_arn = (length(aws_api_gateway_rest_api.api_gateway) > 0 || length(aws_apigatewayv2_api.api_gateway) > 0) ? (
     local.api_gateway_version == "v1"
-      ? "${aws_api_gateway_rest_api.api_gateway[0].execution_arn}/*/*/*"
-      : "${aws_apigatewayv2_api.api_gateway[0].execution_arn}/*/*"
+    ? "${aws_api_gateway_rest_api.api_gateway[0].execution_arn}/*/*/*"
+    : "${aws_apigatewayv2_api.api_gateway[0].execution_arn}/*/*"
   ) : null
 }
 

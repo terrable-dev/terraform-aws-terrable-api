@@ -1,5 +1,5 @@
 resource "aws_apigatewayv2_stage" "default" {
-  count = local.api_gateway_version == "v2" ? 1 : 0
+  count       = local.api_gateway_version == "v2" ? 1 : 0
   api_id      = aws_apigatewayv2_api.api_gateway[0].id
   name        = "$default"
   auto_deploy = true
@@ -31,7 +31,7 @@ resource "aws_apigatewayv2_integration" "lambda_integrations" {
 }
 
 resource "aws_apigatewayv2_api" "api_gateway" {
-  count = local.api_gateway_version == "v2" ? 1 : 0
+  count         = local.api_gateway_version == "v2" ? 1 : 0
   name          = var.api_name
   protocol_type = "HTTP"
   tags          = try(var.http_api.tags, null)
@@ -49,7 +49,7 @@ resource "aws_apigatewayv2_api_mapping" "custom_domain_mapping" {
 }
 
 resource "aws_apigatewayv2_domain_name" "custom_domain" {
-  count       = local.api_gateway_version == "v2" &&  local.custom_domain != null ? 1 : 0
+  count       = local.api_gateway_version == "v2" && local.custom_domain != null ? 1 : 0
   domain_name = local.custom_domain
 
   domain_name_configuration {

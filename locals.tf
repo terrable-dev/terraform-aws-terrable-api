@@ -10,7 +10,7 @@ locals {
       http             = try(handler.http, null),
       environment_vars = merge(coalesce(var.global_environment_variables, {}), coalesce(handler.environment_variables, {}))
       tags             = handler.tags != null ? handler.tags : {}
-      policies = handler.policies
+      policies         = handler.policies
     }
   }
 
@@ -19,7 +19,7 @@ locals {
 }
 
 locals {
-  custom_domain = try(var.http_api.custom_domain, var.rest_api.custom_domain, null)
-  certificate_arn = try(var.http_api.certificate_arn, var.rest_api.certificate_arn, null)
+  custom_domain      = try(var.http_api.custom_domain, var.rest_api.custom_domain, null)
+  certificate_arn    = try(var.http_api.certificate_arn, var.rest_api.certificate_arn, null)
   create_certificate = try(local.custom_domain, null) != null && try(local.certificate_arn, null) == null
 }
