@@ -3,7 +3,7 @@ name: Pull Request Checks
 on:
   pull_request:
     paths:
-      - "*"
+      - "**"
     branches:
       - "main"
   workflow_dispatch:
