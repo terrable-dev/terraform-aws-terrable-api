@@ -16,14 +16,14 @@ variables {
 
 run "api_gateway_has_correct_name" {
   assert {
-    condition     = aws_apigatewayv2_api.api_gateway.name == "test-api"
+    condition     = aws_apigatewayv2_api.api_gateway[0].name == "test-api"
     error_message = "incorrect API Gateway name"
   }
 }
 
 run "default_stage_name" {
   assert {
-    condition     = aws_apigatewayv2_stage.default.name == "$default"
+    condition     = aws_apigatewayv2_stage.default[0].name == "$default"
     error_message = "default stage name not set"
   }
 }

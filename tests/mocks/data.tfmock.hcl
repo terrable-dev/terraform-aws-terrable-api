@@ -68,3 +68,11 @@ mock_resource "aws_acm_certificate" {
     ]
   }
 }
+
+# API Gateway V1
+
+mock_resource "aws_api_gateway_rest_api" {
+  defaults = {
+    execution_arn = "arn:aws:execute-api:us-west-2:123456789012:abcdef123"
+  }
+}
