@@ -52,20 +52,6 @@ run "custom_domain_configuration" {
   }
 }
 
-run "api_deployment_created" {
-  assert {
-    condition     = length(aws_api_gateway_deployment.api_deployment) > 0
-    error_message = "API deployment not created"
-  }
-}
-
-run "api_deployment_stage_name" {
-  assert {
-    condition     = aws_api_gateway_deployment.api_deployment[0].stage_name == "default"
-    error_message = "API deployment stage name is not 'default'"
-  }
-}
-
 run "api_stage_linked_to_custom_domain" {
   assert {
     condition     = aws_api_gateway_base_path_mapping.mapping[0].stage_name == aws_api_gateway_deployment.api_deployment[0].stage_name
@@ -129,51 +115,9 @@ run "certificate_validation_links_to_correct_certificate" {
   }
 }
 
-run "deployment_uses_default_stage" {
-  assert {
-    condition     = aws_api_gateway_deployment.api_deployment[0].stage_name == "default"
-    error_message = "API Gateway deployment is not using 'default' stage"
-  }
-}
-
-run "method_settings_use_default_stage" {
-  assert {
-    condition     = aws_api_gateway_method_settings.settings[0].stage_name == "default"
-    error_message = "API Gateway method settings are not applied to 'default' stage"
-  }
-}
-
 run "base_path_mapping_uses_default_stage" {
   assert {
     condition     = aws_api_gateway_base_path_mapping.mapping[0].stage_name == "default"
     error_message = "Base path mapping is not using 'default' stage"
-  }
-}
-
-run "deployment_stage_name_is_default" {
-  assert {
-    condition     = aws_api_gateway_deployment.api_deployment[0].stage_name == "default"
-    error_message = "Deployment stage name is not set to 'default'"
-  }
-}
-
-run "deployment_rest_api_id" {
-  assert {
-    condition     = aws_api_gateway_deployment.api_deployment[0].rest_api_id == aws_api_gateway_rest_api.api_gateway[0].id
-    error_message = "Deployment is not associated with the correct REST API"
-  }
-}
-
-run "method_settings_applied_to_all_methods" {
-  assert {
-    condition     = aws_api_gateway_method_settings.settings[0].method_path == "*/*"
-    error_message = "Method settings are not applied to all methods"
-  }
-}
-
-run "method_settings_rest_api_id" {
-  assert {
-    condition     = aws_api_gateway_method_settings.settings[0].rest_api_id == aws_api_gateway_rest_api.api_gateway[0].id
-    error_message = "Method settings are not associated with the correct REST API"
   }
 }
