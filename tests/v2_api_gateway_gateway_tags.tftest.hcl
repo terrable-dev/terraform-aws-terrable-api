@@ -38,12 +38,12 @@ run "lambda_function_tags" {
 
 run "http_api_tags" {
   assert {
-    condition     = aws_apigatewayv2_api.api_gateway.tags["http_api_tag1"] == "http_api_tag_value1"
+    condition     = aws_apigatewayv2_api.api_gateway[0].tags["http_api_tag1"] == "http_api_tag_value1"
     error_message = "Tag http_api_tag1 not set with http_api_tag_value1"
   }
 
   assert {
-    condition     = aws_apigatewayv2_api.api_gateway.tags["http_api_tag2"] == "http_api_tag_value2"
+    condition     = aws_apigatewayv2_api.api_gateway[0].tags["http_api_tag2"] == "http_api_tag_value2"
     error_message = "Tag http_api_tag2 not set with http_api_tag_value2"
   }
 }
