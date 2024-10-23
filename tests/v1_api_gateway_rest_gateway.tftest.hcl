@@ -114,3 +114,10 @@ run "certificate_validation_links_to_correct_certificate" {
     error_message = "ACM certificate validation is not linked to the correct certificate"
   }
 }
+
+run "base_path_mapping_uses_default_stage" {
+  assert {
+    condition     = aws_api_gateway_base_path_mapping.mapping[0].stage_name == "default"
+    error_message = "Base path mapping is not using 'default' stage"
+  }
+}
