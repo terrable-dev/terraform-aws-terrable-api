@@ -40,6 +40,7 @@ variable "rest_api" {
     certificate_arn : optional(string)
     tags : optional(map(string))
     endpoint_type : optional(string, "REGIONAL")
+    vpc_endpoint_ids : optional(list(string))
   })
   default = null
 
@@ -48,7 +49,7 @@ variable "rest_api" {
       var.rest_api.endpoint_type == null || contains(["REGIONAL", "PRIVATE"], var.rest_api.endpoint_type)
     )
     error_message = "The endpoint_type must be either 'REGIONAL' or 'PRIVATE'."
-  } 
+  }
 }
 
 variable "http_api" {

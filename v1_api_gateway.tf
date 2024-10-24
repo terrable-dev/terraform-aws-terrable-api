@@ -15,7 +15,7 @@ resource "aws_api_gateway_rest_api" "api_gateway" {
   tags  = try(var.rest_api.tags, null)
 
   endpoint_configuration {
-    types = [ var.rest_api.endpoint_type ]
+    types = [var.rest_api.endpoint_type]
   }
 }
 
