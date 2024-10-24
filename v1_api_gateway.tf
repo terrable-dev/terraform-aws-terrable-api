@@ -13,6 +13,10 @@ resource "aws_api_gateway_rest_api" "api_gateway" {
   count = local.api_gateway_version == "v1" ? 1 : 0
   name  = var.api_name
   tags  = try(var.rest_api.tags, null)
+
+  endpoint_configuration {
+    types = [ var.rest_api.endpoint_type ]
+  }
 }
 
 resource "aws_api_gateway_resource" "lambda_resources" {
@@ -119,7 +123,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
 }
 
 resource "aws_api_gateway_domain_name" "custom_domain" {
-  count                    = local.api_gateway_version == "v1" && local.custom_domain != null ? 1 : 0
+  count                    = local.api_gateway_version == "v1" && local.create_domain ? 1 : 0
   domain_name              = local.custom_domain
   regional_certificate_arn = local.create_certificate ? aws_acm_certificate.domain_cert[0].arn : local.certificate_arn
 
@@ -134,7 +138,7 @@ resource "aws_api_gateway_domain_name" "custom_domain" {
 }
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {
-  count       = local.api_gateway_version == "v1" && local.custom_domain != null ? 1 : 0
+  count       = local.api_gateway_version == "v1" && local.create_domain ? 1 : 0
   api_id      = aws_api_gateway_rest_api.api_gateway[0].id
   stage_name  = aws_api_gateway_deployment.api_deployment[0].stage_name
   domain_name = aws_api_gateway_domain_name.custom_domain[0].domain_name

@@ -49,7 +49,7 @@ resource "aws_apigatewayv2_api_mapping" "custom_domain_mapping" {
 }
 
 resource "aws_apigatewayv2_domain_name" "custom_domain" {
-  count       = local.api_gateway_version == "v2" && local.custom_domain != null ? 1 : 0
+  count       = local.api_gateway_version == "v2" && local.create_domain ? 1 : 0
   domain_name = local.custom_domain
 
   domain_name_configuration {

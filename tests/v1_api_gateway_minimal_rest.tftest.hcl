@@ -72,3 +72,10 @@ run "api_deployment_stage_name" {
     error_message = "API deployment stage name is not 'default'"
   }
 }
+
+run "default_endpoint_configuration_is_regional" {
+  assert {
+    condition = aws_api_gateway_rest_api.api_gateway[0].endpoint_configuration[0].types[0] == "REGIONAL"
+    error_message = "Default endpoint type configuration should be 'REGIONAL'"
+  }
+}

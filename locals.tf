@@ -20,6 +20,7 @@ locals {
 
 locals {
   custom_domain      = try(var.http_api.custom_domain, var.rest_api.custom_domain, null)
+  create_domain      = try(local.custom_domain, null) != null && (try(var.rest_api, null) != null ? var.rest_api.endpoint_type != "PRIVATE" : true)
   certificate_arn    = try(var.http_api.certificate_arn, var.rest_api.certificate_arn, null)
   create_certificate = try(local.custom_domain, null) != null && try(local.certificate_arn, null) == null
 }
