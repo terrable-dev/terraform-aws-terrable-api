@@ -97,34 +97,42 @@ resource "aws_api_gateway_domain_name" "custom_domain" {
   ]
 }
 
-# API Policy - without this, when switching between PRIVATE and EDGE / REGIONAL endpoints
-# eitherterraform or API gateway has issues with keeping the policy up to date.
-# Specifying it explicitly seems to circumvent them.
-data "aws_iam_policy_document" "api_policy_document" {
-  statement {
-    effect = "Allow"
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-    actions   = ["execute-api:Invoke"]
-    resources = ["${aws_api_gateway_rest_api.api_gateway[0].execution_arn}/*"]
+# API Policy for allowing specific VPCE's to execute the API.
+# An all-access policy is also created for EDGE / REGIONAL. 
 
-    dynamic "condition" {
-      for_each = coalesce(var.rest_api.vpc_endpoint_ids, [])
-      content {
-        test     = "StringLike"
-        variable = "aws:SourceVpce"
-        values   = [condition.value]
+# If there is not always a policy in place, even when not needed, switching between PRIVATE and EDGE / REGIONAL endpoints
+# causes either terraform or API gateway has issues with keeping the policy up to date.
+# Specifying it explicitly seems to circumvent those problems.
+resource "aws_iam_policy" "api_policy" {
+  count = local.api_gateway_version == "v1" ? 1 : 0
+  name  = "api_gateway_policy"
+  path  = "/"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Type        = "*"
+          Identifiers = ["*"]
+        }
+        Action   = ["execute-api:Invoke"]
+        Resource = ["${aws_api_gateway_rest_api.api_gateway[0].execution_arn}/*"]
+        Condition = length(coalesce(try(var.rest_api.vpc_endpoint_ids, null), [])) > 0 ? {
+          StringLike = {
+            "aws:SourceVpce" = coalesce(try(var.rest_api.vpc_endpoint_ids, null), [])
+          }
+        } : null
       }
-    }
-  }
+    ]
+  })
 }
 
 resource "aws_api_gateway_rest_api_policy" "api_policy" {
   count       = local.api_gateway_version == "v1" ? 1 : 0
   rest_api_id = aws_api_gateway_rest_api.api_gateway[0].id
-  policy      = data.aws_iam_policy_document.api_policy_document.json
+  policy      = aws_iam_policy.api_policy[0].policy
 }
 
 resource "aws_api_gateway_deployment" "api_deployment" {
@@ -161,6 +169,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
 }
 
 resource "aws_api_gateway_stage" "stage" {
+  count         = local.api_gateway_version == "v1" ? 1 : 0
   deployment_id = aws_api_gateway_deployment.api_deployment[0].id
   rest_api_id   = aws_api_gateway_rest_api.api_gateway[0].id
   stage_name    = "default"
@@ -169,7 +178,7 @@ resource "aws_api_gateway_stage" "stage" {
 resource "aws_api_gateway_base_path_mapping" "mapping" {
   count       = local.api_gateway_version == "v1" && local.create_domain ? 1 : 0
   api_id      = aws_api_gateway_rest_api.api_gateway[0].id
-  stage_name  = aws_api_gateway_stage.stage.stage_name
+  stage_name  = aws_api_gateway_stage.stage[0].stage_name
   domain_name = aws_api_gateway_domain_name.custom_domain[0].domain_name
 }
 
@@ -177,14 +186,10 @@ resource "aws_api_gateway_method_settings" "settings" {
   count = local.api_gateway_version == "v1" ? 1 : 0
 
   rest_api_id = aws_api_gateway_rest_api.api_gateway[0].id
-  stage_name  = aws_api_gateway_stage.stage.stage_name
+  stage_name  = aws_api_gateway_stage.stage[0].stage_name
   method_path = "*/*"
 
   settings {
     metrics_enabled = false
   }
 }
-
-// TODO:
-# Test for stage resource
-# Stage resource to V2

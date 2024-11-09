@@ -54,7 +54,7 @@ run "custom_domain_configuration" {
 
 run "api_stage_linked_to_custom_domain" {
   assert {
-    condition     = aws_api_gateway_base_path_mapping.mapping[0].stage_name == aws_api_gateway_deployment.api_deployment[0].stage_name
+    condition     = aws_api_gateway_base_path_mapping.mapping[0].stage_name == aws_api_gateway_stage.stage[0].stage_name
     error_message = "API stage not correctly linked to custom domain"
   }
 }
