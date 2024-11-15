@@ -13,8 +13,53 @@ data "node-lambda-packager_package" "handlers" {
   working_directory = "${path.root}/${dirname(each.value.source)}"
 }
 
+locals {
+  base_handlers = {
+    for handler_name, handler in var.handlers : handler_name => {
+      name   = handler_name
+      source = handler.source
+      http   = try(handler.http, null)
+      raw_environment_vars = merge(
+        coalesce(var.global_environment_variables, {}),
+        coalesce(handler.environment_variables, {})
+      )
+      tags     = handler.tags != null ? handler.tags : {}
+      policies = handler.policies
+    }
+  }
+
+  # Collect all SSM parameters
+  ssm_params = merge([
+    for handler_name, handler in local.base_handlers : {
+      for k, v in handler.raw_environment_vars :
+      "${handler_name}-${k}" => v.ssm if v.ssm != null
+    }
+  ]...)
+}
+
+locals {
+  env_var_handlers = {
+    for handler_name, handler in local.base_handlers : handler_name => {
+      name   = handler.name
+      source = handler.source
+      http   = handler.http
+      environment_vars = {
+        for k, v in handler.raw_environment_vars :
+        k => v.ssm != null ? data.aws_ssm_parameter.env_vars["${handler_name}-${k}"].value : v.value
+      }
+      tags     = handler.tags
+      policies = handler.policies
+    }
+  }
+}
+
+data "aws_ssm_parameter" "env_vars" {
+  for_each = local.ssm_params
+  name     = each.value
+}
+
 resource "aws_lambda_function" "handlers" {
-  for_each         = local.handlers
+  for_each         = local.env_var_handlers
   filename         = data.node-lambda-packager_package.handlers[each.key].filename
   function_name    = "${var.api_name}-${each.value.name}"
   source_code_hash = data.node-lambda-packager_package.handlers[each.key].source_code_hash

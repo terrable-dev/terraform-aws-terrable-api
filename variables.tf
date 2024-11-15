@@ -17,7 +17,10 @@ variable "handlers" {
   type = map(object({
     source : string
     policies : optional(map(string))
-    environment_variables : optional(map(string))
+    environment_variables : optional(map(object({
+      value = optional(string)
+      ssm   = optional(string)
+    })))
     http = map(string)
     tags = optional(map(string))
   }))
@@ -31,6 +34,20 @@ variable "handlers" {
       ])
     ])
     error_message = "The HTTP methods must be one of GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS or ANY."
+  }
+
+  validation {
+    condition = alltrue([
+      for handler in values(var.handlers) :
+      handler.environment_variables == null ? true : alltrue([
+        for k, v in handler.environment_variables :
+        v == null || can(tostring(v)) || (
+          can(v.ssm) && can(tostring(v.ssm))
+        )
+      ])
+    ])
+
+    error_message = "Environment variables must be strings or objects containing an 'ssm' reference."
   }
 }
 
@@ -67,6 +84,17 @@ variable "global_policies" {
 }
 
 variable "global_environment_variables" {
-  type    = map(string)
+  type = map(object({
+    value = optional(string)
+    ssm   = optional(string)
+  }))
   default = {}
+
+  validation {
+    condition = alltrue([
+      for v in var.global_environment_variables :
+      (v.value != null && v.ssm == null) || (v.value == null && v.ssm != null)
+    ])
+    error_message = "Each environment variable must have either a 'value' OR an 'ssm' property, but not both."
+  }
 }
