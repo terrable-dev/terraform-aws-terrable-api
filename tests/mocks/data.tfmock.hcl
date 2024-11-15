@@ -76,3 +76,11 @@ mock_resource "aws_api_gateway_rest_api" {
     execution_arn = "arn:aws:execute-api:us-west-2:123456789012:abcdef123"
   }
 }
+
+# Mock for SSM parameters
+mock_data "aws_ssm_parameter" {
+  defaults = {
+    name  = "/mocked-ssm"
+    value = "ssm-mocked-value"
+  }
+}
