@@ -33,13 +33,13 @@ locals {
     # Global SSM parameters
     {
       for k, v in try(var.global_environment_variables, {}) :
-      "global-${k}" => trimprefix(v, "SSM://") if can(regex("^SSM://", v))
+      "global-${k}" => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
     },
     # Handler-specific SSM parameters
     merge([
       for handler_name, handler in local.base_handlers : {
         for k, v in handler.raw_environment_vars :
-        "${handler_name}-${k}" => trimprefix(v, "SSM://") if can(regex("^SSM://", v))
+        "${handler_name}-${k}" => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
       }
     ]...)
   )
@@ -52,7 +52,7 @@ locals {
       environment_vars = {
         for k, v in handler.raw_environment_vars :
         k => (
-          can(regex("^SSM://", v)) ? 
+          can(regex("^SSM:", v)) ? 
             data.aws_ssm_parameter.env_vars[
               contains(keys(local.ssm_params), "${handler_name}-${k}") ?
                 "${handler_name}-${k}" : "global-${k}"
