@@ -12,7 +12,7 @@ variables {
     HandlerOne : {
       environment_variables = {
         LOCAL_HANDLER_ONE = "local-value"
-        SSM_LOCAL = "SSM:/test/local/value"
+        SSM_LOCAL         = "SSM:/test/local/value"
       }
       source = "./tests/handler.js"
       http = {

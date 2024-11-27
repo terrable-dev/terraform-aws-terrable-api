@@ -52,12 +52,12 @@ locals {
       environment_vars = {
         for k, v in handler.raw_environment_vars :
         k => (
-          can(regex("^SSM:", v)) ? 
-            data.aws_ssm_parameter.env_vars[
-              contains(keys(local.ssm_params), "${handler_name}-${k}") ?
-                "${handler_name}-${k}" : "global-${k}"
-            ].value :
-            v
+          can(regex("^SSM:", v)) ?
+          data.aws_ssm_parameter.env_vars[
+            contains(keys(local.ssm_params), "${handler_name}-${k}") ?
+            "${handler_name}-${k}" : "global-${k}"
+          ].value :
+          v
         )
       }
       tags     = handler.tags
