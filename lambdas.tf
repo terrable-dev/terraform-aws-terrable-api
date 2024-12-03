@@ -20,24 +20,30 @@ locals {
       source = handler.source
       http   = try(handler.http, null)
       raw_environment_vars = merge(
-        coalesce(var.global_environment_variables, {}),
-        coalesce(handler.environment_variables, {})
+        try(var.global_environment_variables, {}),
+        try(handler.environment_variables, {})
       )
       tags     = handler.tags != null ? handler.tags : {}
       policies = handler.policies
     }
   }
 
-  # Collect all SSM parameters
-  ssm_params = merge([
-    for handler_name, handler in local.base_handlers : {
-      for k, v in handler.raw_environment_vars :
-      "${handler_name}-${k}" => v.ssm if v.ssm != null
-    }
-  ]...)
-}
+  # Collect all SSM parameters (including global ones)
+  ssm_params = merge(
+    # Global SSM parameters
+    {
+      for k, v in try(var.global_environment_variables, {}) :
+      "global-${k}" => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
+    },
+    # Handler-specific SSM parameters
+    merge([
+      for handler_name, handler in local.base_handlers : {
+        for k, v in handler.raw_environment_vars :
+        "${handler_name}-${k}" => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
+      }
+    ]...)
+  )
 
-locals {
   env_var_handlers = {
     for handler_name, handler in local.base_handlers : handler_name => {
       name   = handler.name
@@ -45,7 +51,14 @@ locals {
       http   = handler.http
       environment_vars = {
         for k, v in handler.raw_environment_vars :
-        k => v.ssm != null ? data.aws_ssm_parameter.env_vars["${handler_name}-${k}"].value : v.value
+        k => (
+          can(regex("^SSM:", v)) ?
+          data.aws_ssm_parameter.env_vars[
+            contains(keys(local.ssm_params), "${handler_name}-${k}") ?
+            "${handler_name}-${k}" : "global-${k}"
+          ].value :
+          v
+        )
       }
       tags     = handler.tags
       policies = handler.policies

@@ -5,22 +5,14 @@ mock_provider "aws" {
 variables {
   api_name = "test-api"
   global_environment_variables = {
-    GLOBAL_ONE = {
-      value : "global-value"
-    }
-    SSM_GLOBAL = {
-      ssm : "/test/global/value"
-    }
+    GLOBAL_ONE = "global-value"
+    SSM_GLOBAL = "SSM:/test/global/value"
   }
   handlers = {
     HandlerOne : {
       environment_variables = {
-        LOCAL_HANDLER_ONE = {
-          value : "local-value"
-        }
-        SSM_LOCAL = {
-          ssm : "/test/local/value"
-        }
+        LOCAL_HANDLER_ONE = "local-value"
+        SSM_LOCAL         = "SSM:/test/local/value"
       }
       source = "./tests/handler.js"
       http = {
