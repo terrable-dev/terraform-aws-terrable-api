@@ -85,7 +85,7 @@ resource "aws_api_gateway_integration" "lambda_integrations" {
 resource "aws_api_gateway_domain_name" "custom_domain" {
   count                    = local.api_gateway_version == "v1" && local.create_domain ? 1 : 0
   domain_name              = local.custom_domain
-  regional_certificate_arn = local.create_certificate ? aws_acm_certificate.domain_cert[0].arn : local.certificate_arn
+  regional_certificate_arn = aws_acm_certificate.domain_cert[0].arn
 
   endpoint_configuration {
     types = ["REGIONAL"]

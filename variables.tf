@@ -37,7 +37,7 @@ variable "handlers" {
 variable "rest_api" {
   type = object({
     custom_domain : optional(string)
-    certificate_arn : optional(string)
+    hosted_zone_id : optional(string)
     tags : optional(map(string))
     endpoint_type : optional(string, "REGIONAL")
     vpc_endpoint_ids : optional(list(string))
@@ -50,15 +50,29 @@ variable "rest_api" {
     )
     error_message = "The endpoint_type must be either 'REGIONAL' or 'PRIVATE'."
   }
+  
+  validation {
+    condition = var.rest_api == null ? true : (
+      var.rest_api.custom_domain == null ? true : var.rest_api.hosted_zone_id != null
+    )
+    error_message = "hosted_zone_id is required when custom_domain is specified."
+  }
 }
 
 variable "http_api" {
   type = object({
     custom_domain : optional(string)
-    certificate_arn : optional(string)
+    hosted_zone_id : optional(string)
     tags : optional(map(string))
   })
   default = null
+
+  validation {
+    condition = var.http_api == null ? true : (
+      var.http_api.custom_domain == null ? true : var.http_api.hosted_zone_id != null
+    )
+    error_message = "hosted_zone_id is required when custom_domain is specified."
+  }
 }
 
 variable "global_policies" {

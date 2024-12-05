@@ -1,6 +1,6 @@
 resource "aws_route53_record" "api_domain" {
   count   = local.create_domain ? 1 : 0
-  zone_id = data.aws_route53_zone.domain_zone[0].zone_id
+  zone_id = local.zone_id
   name    = local.custom_domain
   type    = "A"
 

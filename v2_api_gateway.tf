@@ -53,7 +53,7 @@ resource "aws_apigatewayv2_domain_name" "custom_domain" {
   domain_name = local.custom_domain
 
   domain_name_configuration {
-    certificate_arn = local.create_certificate ? aws_acm_certificate.domain_cert[0].arn : local.certificate_arn
+    certificate_arn = aws_acm_certificate.domain_cert[0].arn
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }

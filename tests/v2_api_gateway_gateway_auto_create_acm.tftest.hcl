@@ -6,6 +6,7 @@ variables {
   api_name = "test-api"
   http_api = {
     custom_domain = "testdomain.test.com"
+    hosted_zone_id = "HZID"
   }
   handlers = {
     TestHandler : {

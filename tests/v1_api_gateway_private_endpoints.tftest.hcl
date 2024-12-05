@@ -5,7 +5,6 @@ mock_provider "aws" {
 variables {
   api_name = "test-api"
   rest_api = {
-    custom_domain = "testdomain.test.com"
     endpoint_type = "PRIVATE"
   }
   handlers = {
