@@ -5,7 +5,7 @@ mock_provider "aws" {
 variables {
   api_name = "test-api"
   rest_api = {
-    custom_domain = "test.domain.com"
+    custom_domain  = "test.domain.com"
     hosted_zone_id = "HZID"
   }
   handlers = {

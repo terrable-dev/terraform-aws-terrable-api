@@ -93,7 +93,7 @@ locals {
 }
 
 resource "aws_api_gateway_rest_api_policy" "api_policy" {
-  count = local.api_gateway_version == "v1" ? 1 : 0
+  count       = local.api_gateway_version == "v1" ? 1 : 0
   rest_api_id = aws_api_gateway_rest_api.api_gateway[0].id
 
   policy = jsonencode({

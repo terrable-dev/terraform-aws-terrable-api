@@ -50,7 +50,7 @@ variable "rest_api" {
     )
     error_message = "The endpoint_type must be either 'REGIONAL' or 'PRIVATE'."
   }
-  
+
   validation {
     condition = var.rest_api == null ? true : (
       var.rest_api.custom_domain == null ? true : var.rest_api.hosted_zone_id != null
