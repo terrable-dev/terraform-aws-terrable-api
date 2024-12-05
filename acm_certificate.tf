@@ -8,9 +8,17 @@ resource "aws_acm_certificate" "domain_cert" {
   }
 }
 
-data "aws_route53_zone" "domain_zone" {
-  count = local.custom_domain != null ? 1 : 0
-  name  = join(".", slice(split(".", local.custom_domain), 1, length(split(".", local.custom_domain))))
+resource "aws_route53_record" "cert_validation" {
+  count   = local.create_certificate ? 1 : 0
+  name    = tolist(aws_acm_certificate.domain_cert[0].domain_validation_options)[0].resource_record_name
+  type    = tolist(aws_acm_certificate.domain_cert[0].domain_validation_options)[0].resource_record_type
+  zone_id = local.zone_id
+  records = [tolist(aws_acm_certificate.domain_cert[0].domain_validation_options)[0].resource_record_value]
+  ttl     = 60
+
+  depends_on = [
+    aws_acm_certificate.domain_cert,
+  ]
 }
 
 resource "aws_acm_certificate_validation" "cert_validation" {
@@ -20,18 +28,5 @@ resource "aws_acm_certificate_validation" "cert_validation" {
 
   depends_on = [
     aws_route53_record.cert_validation,
-  ]
-}
-
-resource "aws_route53_record" "cert_validation" {
-  count   = local.create_certificate ? 1 : 0
-  name    = tolist(aws_acm_certificate.domain_cert[0].domain_validation_options)[0].resource_record_name
-  type    = tolist(aws_acm_certificate.domain_cert[0].domain_validation_options)[0].resource_record_type
-  zone_id = data.aws_route53_zone.domain_zone[0].zone_id
-  records = [tolist(aws_acm_certificate.domain_cert[0].domain_validation_options)[0].resource_record_value]
-  ttl     = 60
-
-  depends_on = [
-    aws_acm_certificate.domain_cert,
   ]
 }

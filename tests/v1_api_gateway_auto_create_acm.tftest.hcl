@@ -5,7 +5,8 @@ mock_provider "aws" {
 variables {
   api_name = "test-api"
   rest_api = {
-    custom_domain = "testdomain.test.com"
+    custom_domain  = "testdomain.test.com"
+    hosted_zone_id = "HZID"
   }
   handlers = {
     TestHandler : {
@@ -14,6 +15,71 @@ variables {
         GET = "/"
       }
     }
+  }
+}
+
+run "validation_requires_hosted_zone" {
+  command = plan
+
+  variables {
+    api_name = "test-api"
+    rest_api = {
+      custom_domain = "test.domain.com"
+      # deliberately omitting hosted_zone_id
+    }
+  }
+
+  expect_failures = [
+    var.rest_api,
+  ]
+}
+
+run "creates_rest_api_custom_domain" {
+  assert {
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.rest_api.custom_domain
+    error_message = "Custom domain name does not match the expected value"
+  }
+}
+
+run "creates_base_path_mapping" {
+  assert {
+    condition     = aws_api_gateway_base_path_mapping.mapping[0].domain_name == aws_apigatewayv2_domain_name.custom_domain[0].domain_name
+    error_message = "Base path mapping domain name does not match the expected value"
+  }
+}
+
+run "creates_custom_domain" {
+  assert {
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.rest_api.custom_domain
+    error_message = "Custom domain name does not match the expected value"
+  }
+}
+
+run "creates_route53_record" {
+  assert {
+    condition     = aws_route53_record.api_domain[0].name == aws_apigatewayv2_domain_name.custom_domain[0].domain_name
+    error_message = "Route53 record for custom domain not created correctly"
+  }
+}
+
+run "route53_record_uses_correct_zone" {
+  assert {
+    condition     = aws_route53_record.api_domain[0].zone_id == var.rest_api.hosted_zone_id
+    error_message = "Route53 record is not using the provided hosted zone ID"
+  }
+}
+
+run "custom_domain_configuration" {
+  assert {
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].endpoint_type == "REGIONAL"
+    error_message = "Custom domain not configured as REGIONAL endpoint"
+  }
+}
+
+run "api_stage_linked_to_custom_domain" {
+  assert {
+    condition     = aws_api_gateway_base_path_mapping.mapping[0].stage_name == aws_api_gateway_stage.stage[0].stage_name
+    error_message = "API stage not correctly linked to custom domain"
   }
 }
 
@@ -40,7 +106,7 @@ run "acm_certificate_validation_method" {
 
 run "custom_domain_uses_correct_certificate" {
   assert {
-    condition     = aws_api_gateway_domain_name.custom_domain[0].regional_certificate_arn == aws_acm_certificate.domain_cert[0].arn
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].certificate_arn == aws_acm_certificate.domain_cert[0].arn
     error_message = "Custom domain is not using the correct ACM certificate"
   }
 }
@@ -49,6 +115,13 @@ run "certificate_validation_record_created" {
   assert {
     condition     = length(aws_route53_record.cert_validation) > 0
     error_message = "Certificate validation DNS record was not created"
+  }
+}
+
+run "certificate_validation_record_uses_correct_zone" {
+  assert {
+    condition     = aws_route53_record.cert_validation[0].zone_id == var.rest_api.hosted_zone_id
+    error_message = "Certificate validation record is not using the provided hosted zone ID"
   }
 }
 
@@ -70,5 +143,12 @@ run "certificate_validation_links_to_correct_certificate" {
   assert {
     condition     = aws_acm_certificate_validation.cert_validation[0].certificate_arn == aws_acm_certificate.domain_cert[0].arn
     error_message = "ACM certificate validation is not linked to the correct certificate"
+  }
+}
+
+run "base_path_mapping_uses_default_stage" {
+  assert {
+    condition     = aws_api_gateway_base_path_mapping.mapping[0].stage_name == "default"
+    error_message = "Base path mapping is not using 'default' stage"
   }
 }

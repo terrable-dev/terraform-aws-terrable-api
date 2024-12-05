@@ -5,7 +5,8 @@ mock_provider "aws" {
 variables {
   api_name = "test-api"
   rest_api = {
-    custom_domain = "test.domain.com"
+    custom_domain  = "test.domain.com"
+    hosted_zone_id = "HZID"
   }
   handlers = {
     TestHandler : {
@@ -19,35 +20,35 @@ variables {
 
 run "creates_rest_api_custom_domain" {
   assert {
-    condition     = aws_api_gateway_domain_name.custom_domain[0].domain_name == var.rest_api.custom_domain
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.rest_api.custom_domain
     error_message = "Custom domain name does not match the expected value"
   }
 }
 
 run "creates_base_path_mapping" {
   assert {
-    condition     = aws_api_gateway_base_path_mapping.mapping[0].domain_name == aws_api_gateway_domain_name.custom_domain[0].domain_name
+    condition     = aws_api_gateway_base_path_mapping.mapping[0].domain_name == aws_apigatewayv2_domain_name.custom_domain[0].domain_name
     error_message = "Base path mapping domain name does not match the expected value"
   }
 }
 
 run "creates_custom_domain" {
   assert {
-    condition     = aws_api_gateway_domain_name.custom_domain[0].domain_name == var.rest_api.custom_domain
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name == var.rest_api.custom_domain
     error_message = "Custom domain name does not match the expected value"
   }
 }
 
 run "creates_route53_record" {
   assert {
-    condition     = aws_route53_record.api_domain[0].name == aws_api_gateway_domain_name.custom_domain[0].domain_name
+    condition     = aws_route53_record.api_domain[0].name == aws_apigatewayv2_domain_name.custom_domain[0].domain_name
     error_message = "Route53 record for custom domain not created correctly"
   }
 }
 
 run "custom_domain_configuration" {
   assert {
-    condition     = contains(aws_api_gateway_domain_name.custom_domain[0].endpoint_configuration[0].types, "REGIONAL")
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].endpoint_type == "REGIONAL"
     error_message = "Custom domain not configured as REGIONAL endpoint"
   }
 }
@@ -82,7 +83,7 @@ run "acm_certificate_validation_method" {
 
 run "custom_domain_uses_correct_certificate" {
   assert {
-    condition     = aws_api_gateway_domain_name.custom_domain[0].regional_certificate_arn == aws_acm_certificate.domain_cert[0].arn
+    condition     = aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].certificate_arn == aws_acm_certificate.domain_cert[0].arn
     error_message = "Custom domain is not using the correct ACM certificate"
   }
 }

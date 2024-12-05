@@ -5,7 +5,6 @@ mock_provider "aws" {
 variables {
   api_name = "test-api"
   rest_api = {
-    custom_domain = "testdomain.test.com"
     endpoint_type = "PRIVATE"
   }
   handlers = {
@@ -27,7 +26,7 @@ run "endpoint_configuration_is_private" {
 
 run "domain_name_not_configured_for_private" {
   assert {
-    condition     = length(aws_api_gateway_domain_name.custom_domain) == 0
+    condition     = length(aws_apigatewayv2_domain_name.custom_domain) == 0
     error_message = "Custom domain name should not be configured for 'PRIVATE' API Gateways"
   }
 }

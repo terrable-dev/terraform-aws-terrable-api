@@ -42,23 +42,4 @@ resource "aws_apigatewayv2_api_mapping" "custom_domain_mapping" {
   api_id      = aws_apigatewayv2_api.api_gateway[0].id
   domain_name = aws_apigatewayv2_domain_name.custom_domain[0].id
   stage       = aws_apigatewayv2_stage.default[0].id
-
-  depends_on = [
-    aws_apigatewayv2_domain_name.custom_domain,
-  ]
-}
-
-resource "aws_apigatewayv2_domain_name" "custom_domain" {
-  count       = local.api_gateway_version == "v2" && local.create_domain ? 1 : 0
-  domain_name = local.custom_domain
-
-  domain_name_configuration {
-    certificate_arn = local.create_certificate ? aws_acm_certificate.domain_cert[0].arn : local.certificate_arn
-    endpoint_type   = "REGIONAL"
-    security_policy = "TLS_1_2"
-  }
-
-  depends_on = [
-    aws_acm_certificate_validation.cert_validation,
-  ]
 }
