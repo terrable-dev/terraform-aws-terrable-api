@@ -35,13 +35,6 @@ resource "aws_lambda_permission" "lambda_api_gateway_execution_permission" {
   source_arn    = local.api_gateway_source_arn
 }
 
-resource "aws_cloudwatch_log_group" "lambda_log_groups" {
-  for_each = local.handlers
-
-  name              = "/aws/lambda/${aws_lambda_function.handlers[each.key].function_name}"
-  retention_in_days = 1
-}
-
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"

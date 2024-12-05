@@ -96,3 +96,10 @@ resource "aws_lambda_function" "handlers" {
     aws_iam_role_policy_attachment.vpc_execution_role,
   ]
 }
+
+resource "aws_cloudwatch_log_group" "lambda_log_groups" {
+  for_each = local.handlers
+
+  name              = "/aws/lambda/${aws_lambda_function.handlers[each.key].function_name}"
+  retention_in_days = var.log_retention_days
+}
