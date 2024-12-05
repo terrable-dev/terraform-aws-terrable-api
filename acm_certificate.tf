@@ -1,5 +1,5 @@
 resource "aws_acm_certificate" "domain_cert" {
-  count                   = local.create_certificate ? 1 : 0
+  count             = local.create_certificate ? 1 : 0
   domain_name       = local.custom_domain
   validation_method = "DNS"
 

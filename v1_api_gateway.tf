@@ -82,31 +82,19 @@ resource "aws_api_gateway_integration" "lambda_integrations" {
   depends_on = [aws_api_gateway_method.lambda_methods]
 }
 
-resource "aws_api_gateway_domain_name" "custom_domain" {
-  count                    = local.api_gateway_version == "v1" && local.create_domain ? 1 : 0
-  domain_name              = local.custom_domain
-  regional_certificate_arn = aws_acm_certificate.domain_cert[0].arn
-
-  endpoint_configuration {
-    types = ["REGIONAL"]
-  }
-
-  depends_on = [
-    aws_acm_certificate_validation.cert_validation,
-    aws_apigatewayv2_domain_name.custom_domain
-  ]
-}
-
 # API Policy for allowing specific VPCE's to execute the API.
 # An all-access policy is also created for EDGE / REGIONAL. 
 
 # If there is not always a policy in place, even when not needed, switching between PRIVATE and EDGE / REGIONAL endpoints
-# causes either terraform or API gateway has issues with keeping the policy up to date.
+# causes either terraform or API gateway to have issues with keeping the policy up to date.
 # Specifying it explicitly seems to circumvent those problems.
-resource "aws_iam_policy" "api_policy" {
+locals {
+  should_require_vpc = length(coalesce(try(var.rest_api.vpc_endpoint_ids, null), [])) > 0
+}
+
+resource "aws_api_gateway_rest_api_policy" "api_policy" {
   count = local.api_gateway_version == "v1" ? 1 : 0
-  name  = "api_gateway_policy"
-  path  = "/"
+  rest_api_id = aws_api_gateway_rest_api.api_gateway[0].id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -114,25 +102,18 @@ resource "aws_iam_policy" "api_policy" {
       {
         Effect = "Allow"
         Principal = {
-          Type        = "*"
-          Identifiers = ["*"]
+          AWS = "*"
         }
-        Action   = ["execute-api:Invoke"]
-        Resource = ["${aws_api_gateway_rest_api.api_gateway[0].execution_arn}/*"]
-        Condition = length(coalesce(try(var.rest_api.vpc_endpoint_ids, null), [])) > 0 ? {
-          StringLike = {
-            "aws:SourceVpce" = coalesce(try(var.rest_api.vpc_endpoint_ids, null), [])
+        Action   = "execute-api:Invoke"
+        Resource = "${aws_api_gateway_rest_api.api_gateway[0].execution_arn}/*"
+        Condition = local.should_require_vpc ? {
+          StringEquals = {
+            "aws:SourceVpce" = var.rest_api.vpc_endpoint_ids
           }
-        } : null
+        } : {}
       }
     ]
   })
-}
-
-resource "aws_api_gateway_rest_api_policy" "api_policy" {
-  count       = local.api_gateway_version == "v1" ? 1 : 0
-  rest_api_id = aws_api_gateway_rest_api.api_gateway[0].id
-  policy      = aws_iam_policy.api_policy[0].policy
 }
 
 resource "aws_api_gateway_deployment" "api_deployment" {
@@ -159,7 +140,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
     aws_api_gateway_resource.lambda_resources,
     aws_api_gateway_method.lambda_methods,
     aws_api_gateway_integration.lambda_integrations,
-    aws_api_gateway_domain_name.custom_domain,
+    aws_apigatewayv2_domain_name.custom_domain,
     aws_api_gateway_rest_api_policy.api_policy,
   ]
 
@@ -179,7 +160,7 @@ resource "aws_api_gateway_base_path_mapping" "mapping" {
   count       = local.api_gateway_version == "v1" && local.create_domain ? 1 : 0
   api_id      = aws_api_gateway_rest_api.api_gateway[0].id
   stage_name  = aws_api_gateway_stage.stage[0].stage_name
-  domain_name = aws_api_gateway_domain_name.custom_domain[0].domain_name
+  domain_name = aws_apigatewayv2_domain_name.custom_domain[0].domain_name
 }
 
 resource "aws_api_gateway_method_settings" "settings" {
