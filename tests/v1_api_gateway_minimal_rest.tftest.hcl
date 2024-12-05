@@ -68,32 +68,27 @@ run "default_endpoint_configuration_is_regional" {
 
 run "resource_policy_set" {
   assert {
-    condition     = (jsondecode(resource.aws_iam_policy.api_policy[0].policy).Statement[0].Condition) == null
-    error_message = "Policy should not include any conditiopns"
+    condition     = (jsondecode(resource.aws_api_gateway_rest_api_policy.api_policy[0].policy).Statement[0].Condition) == {}
+    error_message = "Policy should not include any conditions"
   }
 
   assert {
-    condition     = jsondecode(resource.aws_iam_policy.api_policy[0].policy).Statement[0].Action[0] == "execute-api:Invoke"
+    condition     = jsondecode(resource.aws_api_gateway_rest_api_policy.api_policy[0].policy).Statement[0].Action == "execute-api:Invoke"
     error_message = "Policy Action should be 'execute-api:Invoke'"
   }
 
   assert {
-    condition     = can(regex("^arn:aws:execute-api:", jsondecode(resource.aws_iam_policy.api_policy[0].policy).Statement[0].Resource[0]))
+    condition     = can(regex("^arn:aws:execute-api:", jsondecode(resource.aws_api_gateway_rest_api_policy.api_policy[0].policy).Statement[0].Resource))
     error_message = "Policy Resource should start with 'arn:aws:execute-api:'"
   }
 
   assert {
-    condition     = jsondecode(resource.aws_iam_policy.api_policy[0].policy).Statement[0].Principal.Type == "*"
-    error_message = "Policy Principal Type should be '*'"
+    condition     = jsondecode(resource.aws_api_gateway_rest_api_policy.api_policy[0].policy).Statement[0].Principal.AWS == "*"
+    error_message = "Policy Principal should be 'AWS=*'"
   }
 
   assert {
-    condition     = jsondecode(resource.aws_iam_policy.api_policy[0].policy).Statement[0].Principal.Identifiers[0] == "*"
-    error_message = "Policy Principal Identifiers should include '*'"
-  }
-
-  assert {
-    condition     = jsondecode(resource.aws_iam_policy.api_policy[0].policy).Statement[0].Effect == "Allow"
+    condition     = jsondecode(resource.aws_api_gateway_rest_api_policy.api_policy[0].policy).Statement[0].Effect == "Allow"
     error_message = "Policy Effect should be 'Allow'"
   }
 }

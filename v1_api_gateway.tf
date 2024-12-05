@@ -107,7 +107,7 @@ resource "aws_api_gateway_rest_api_policy" "api_policy" {
         Action   = "execute-api:Invoke"
         Resource = "${aws_api_gateway_rest_api.api_gateway[0].execution_arn}/*"
         Condition = local.should_require_vpc ? {
-          StringEquals = {
+          StringLike = {
             "aws:SourceVpce" = var.rest_api.vpc_endpoint_ids
           }
         } : {}
