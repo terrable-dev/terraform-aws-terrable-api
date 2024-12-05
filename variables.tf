@@ -13,6 +13,22 @@ variable "vpc" {
   }
 }
 
+variable "log_retention_days" {
+  type        = number
+  description = "The number of days that log events should be retained for in any created CloudWatch log groups."
+  default     = 0
+
+  validation {
+    condition     = var.log_retention_days == null || contains([0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653], var.log_retention_days)
+    error_message = "log_retention_days must be one of the following values: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, or null."
+  }
+
+  validation {
+    condition     = var.log_retention_days == null || var.log_retention_days >= 0
+    error_message = "log_retention_days must be greater than or equal to 0 if specified."
+  }
+}
+
 variable "handlers" {
   type = map(object({
     source : string
