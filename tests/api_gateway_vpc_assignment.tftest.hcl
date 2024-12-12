@@ -4,6 +4,8 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
+  runtime  = "nodejs20.x"
+
   vpc = {
     subnet_ids         = ["subnet-12345"]
     security_group_ids = ["sg-67890", "sg-4567"]

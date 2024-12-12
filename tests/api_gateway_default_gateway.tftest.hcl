@@ -4,6 +4,8 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
+  runtime  = "nodejs20.x"
+
   handlers = {
     TestHandler : {
       source = "./tests/handler.js"

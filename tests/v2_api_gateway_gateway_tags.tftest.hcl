@@ -4,6 +4,8 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
+  runtime  = "nodejs20.x"
+
   http_api = {
     tags = {
       http_api_tag1 = "http_api_tag_value1"

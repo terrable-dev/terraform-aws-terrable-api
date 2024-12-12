@@ -4,6 +4,8 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
+  runtime  = "nodejs20.x"
+
   rest_api = {
     custom_domain  = "test.domain.com"
     hosted_zone_id = "HZID"
