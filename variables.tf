@@ -65,7 +65,6 @@ variable "handlers" {
   }
 }
 
-
 variable "rest_api" {
   type = object({
     custom_domain    = optional(string)
@@ -79,9 +78,9 @@ variable "rest_api" {
 
   validation {
     condition = var.rest_api == null ? true : (
-      var.rest_api.endpoint_type == null || contains(["REGIONAL", "PRIVATE"], var.rest_api.endpoint_type)
+      var.rest_api.endpoint_type == null || contains(["REGIONAL", "EDGE", "PRIVATE"], var.rest_api.endpoint_type)
     )
-    error_message = "The endpoint_type must be either 'REGIONAL' or 'PRIVATE'."
+    error_message = "The endpoint_type must be either 'REGIONAL', 'EDGE' or 'PRIVATE'."
   }
 
   validation {
