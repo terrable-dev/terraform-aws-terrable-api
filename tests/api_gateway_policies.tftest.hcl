@@ -4,6 +4,8 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
+  runtime  = "nodejs20.x"
+
   global_policies = {
     GlobalPolicy1 = "arn:aws:iam::aws:policy/GlobalPolicy1"
     GlobalPolicy2 = "arn:aws:iam::aws:policy/GlobalPolicy2"

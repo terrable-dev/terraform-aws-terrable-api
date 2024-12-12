@@ -4,6 +4,8 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
+  runtime  = "nodejs20.x"
+
   rest_api = {
     endpoint_type    = "PRIVATE"
     vpc_endpoint_ids = ["vpce-testvpce1", "vpce-testvpce2"]

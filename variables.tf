@@ -2,6 +2,12 @@ variable "api_name" {
   type = string
 }
 
+variable "runtime" {
+  type        = string
+  description = "Default runtime for all handlers if not specified individually"
+  default     = null
+}
+
 variable "vpc" {
   type = object({
     subnet_ids         = list(string)
@@ -34,8 +40,9 @@ variable "handlers" {
     source : string
     policies : optional(map(string))
     environment_variables : optional(map(string))
-    http = map(string)
-    tags = optional(map(string))
+    http    = map(string)
+    tags    = optional(map(string))
+    runtime = optional(string)
   }))
 
   validation {
@@ -48,15 +55,25 @@ variable "handlers" {
     ])
     error_message = "The HTTP methods must be one of GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS or ANY."
   }
+
+  validation {
+    condition = var.runtime != null ? true : alltrue([
+      for handler in values(var.handlers) :
+      handler.runtime != null
+    ])
+    error_message = "Runtime configuration error: No global runtime specified and the following handlers are missing a runtime: ${join(", ", [for name, handler in var.handlers : name if handler.runtime == null])}"
+  }
 }
+
 
 variable "rest_api" {
   type = object({
-    custom_domain : optional(string)
-    hosted_zone_id : optional(string)
-    tags : optional(map(string))
-    endpoint_type : optional(string, "REGIONAL")
-    vpc_endpoint_ids : optional(list(string))
+    custom_domain    = optional(string)
+    hosted_zone_id   = optional(string)
+    tags             = optional(map(string))
+    endpoint_type    = optional(string, "REGIONAL")
+    vpc_endpoint_ids = optional(list(string))
+    runtime          = optional(string)
   })
   default = null
 
@@ -77,9 +94,9 @@ variable "rest_api" {
 
 variable "http_api" {
   type = object({
-    custom_domain : optional(string)
-    hosted_zone_id : optional(string)
-    tags : optional(map(string))
+    custom_domain  = optional(string)
+    hosted_zone_id = optional(string)
+    tags           = optional(map(string))
   })
   default = null
 

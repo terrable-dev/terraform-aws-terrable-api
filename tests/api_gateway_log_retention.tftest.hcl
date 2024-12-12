@@ -3,7 +3,9 @@ mock_provider "aws" {
 }
 
 variables {
-  api_name           = "test-api"
+  api_name = "test-api"
+  runtime  = "nodejs20.x"
+
   log_retention_days = 3
   handlers = {
     TestHandler : {

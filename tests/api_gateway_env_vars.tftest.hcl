@@ -4,6 +4,8 @@ mock_provider "aws" {
 
 variables {
   api_name = "test-api"
+  runtime  = "nodejs20.x"
+
   global_environment_variables = {
     GLOBAL_ONE = "global-value"
     SSM_GLOBAL = "SSM:/test/global/value"
