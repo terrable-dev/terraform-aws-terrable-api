@@ -61,7 +61,7 @@ variable "handlers" {
       for handler in values(var.handlers) :
       handler.runtime != null
     ])
-    error_message = "Runtime configuration error: When no global runtime is specified (variable 'runtime'), each handler must specify its own runtime. Please either set a global runtime or ensure each handler has a 'runtime' field."
+    error_message = "Runtime configuration error: No global runtime specified and the following handlers are missing a runtime: ${join(", ", [for name, handler in var.handlers : name if handler.runtime == null])}"
   }
 }
 
