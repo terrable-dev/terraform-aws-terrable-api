@@ -20,6 +20,11 @@ run "valid_global_runtime" {
     condition     = var.runtime == "nodejs20.x"
     error_message = "Global runtime should be set to nodejs20.x"
   }
+
+  assert {
+    condition     = aws_lambda_function.handlers["TestHandler"].runtime == "nodejs20.x"
+    error_message = "Lambda function should use the global runtime"
+  }
 }
 
 run "valid_handler_runtime" {
@@ -39,6 +44,32 @@ run "valid_handler_runtime" {
   assert {
     condition     = var.handlers.TestHandler.runtime == "nodejs20.x"
     error_message = "Handler runtime should be set to nodejs20.x"
+  }
+
+  assert {
+    condition     = aws_lambda_function.handlers["TestHandler"].runtime == "nodejs20.x"
+    error_message = "Lambda function should use the handler-specific runtime"
+  }
+}
+
+run "handler_runtime_overrides_global" {
+  variables {
+    api_name = "test-api"
+    runtime  = "nodejs18.x"
+    handlers = {
+      TestHandler = {
+        source  = "./tests/handler.js"
+        runtime = "python3.9"
+        http = {
+          GET = "/"
+        }
+      }
+    }
+  }
+
+  assert {
+    condition     = aws_lambda_function.handlers["TestHandler"].runtime == "python3.9"
+    error_message = "Lambda function should use handler-specific runtime over global runtime"
   }
 }
 

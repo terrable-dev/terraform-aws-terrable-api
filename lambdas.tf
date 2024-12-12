@@ -16,9 +16,10 @@ data "node-lambda-packager_package" "handlers" {
 locals {
   base_handlers = {
     for handler_name, handler in var.handlers : handler_name => {
-      name   = handler_name
-      source = handler.source
-      http   = try(handler.http, null)
+      name    = handler_name
+      source  = handler.source
+      runtime = coalesce(handler.runtime, var.runtime)
+      http    = try(handler.http, null)
       raw_environment_vars = merge(
         try(var.global_environment_variables, {}),
         try(handler.environment_variables, {})
@@ -46,9 +47,10 @@ locals {
 
   env_var_handlers = {
     for handler_name, handler in local.base_handlers : handler_name => {
-      name   = handler.name
-      source = handler.source
-      http   = handler.http
+      name    = handler.name
+      source  = handler.source
+      runtime = handler.runtime
+      http    = handler.http
       environment_vars = {
         for k, v in handler.raw_environment_vars :
         k => (
@@ -78,7 +80,7 @@ resource "aws_lambda_function" "handlers" {
   source_code_hash = data.node-lambda-packager_package.handlers[each.key].source_code_hash
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.handler"
-  runtime          = "nodejs20.x"
+  runtime          = each.value.runtime
 
   environment {
     variables = each.value.environment_vars
