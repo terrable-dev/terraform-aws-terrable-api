@@ -5,14 +5,14 @@ mock_provider "aws" {
 run "test_cors_configuration" {
   variables {
     api_name = "test-api"
-    runtime = "nodejs20.x"
+    runtime  = "nodejs20.x"
     rest_api = {
       cors = {
         allow_origins     = ["*"]
         allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
         allow_headers     = ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key", "X-Amz-Security-Token"]
         expose_headers    = ["Content-Length", "X-My-Header"]
-        max_age          = 3600
+        max_age           = 3600
         allow_credentials = false
       }
     }
@@ -48,7 +48,7 @@ run "test_cors_configuration" {
 
   # Test MOCK integration type for root
   assert {
-    condition = aws_api_gateway_integration.options["/"].type == "MOCK"
+    condition     = aws_api_gateway_integration.options["/"].type == "MOCK"
     error_message = "Integration type is not MOCK"
   }
 
@@ -68,7 +68,7 @@ run "test_cors_configuration" {
 run "test_cors_disabled" {
   variables {
     api_name = "test-api"
-    runtime = "nodejs20.x"
+    runtime  = "nodejs20.x"
     rest_api = {
     }
 
@@ -83,7 +83,7 @@ run "test_cors_disabled" {
   }
 
   assert {
-    condition = length(aws_api_gateway_method.options) == 0
+    condition     = length(aws_api_gateway_method.options) == 0
     error_message = "OPTIONS method created when CORS is disabled"
   }
 }
@@ -92,7 +92,7 @@ run "test_cors_disabled" {
 run "test_cors_custom_origins" {
   variables {
     api_name = "test-api"
-        runtime = "nodejs20.x"
+    runtime  = "nodejs20.x"
 
     rest_api = {
       cors = {
@@ -100,7 +100,7 @@ run "test_cors_custom_origins" {
         allow_methods     = ["GET", "POST"]
         allow_headers     = ["Content-Type"]
         expose_headers    = []
-        max_age          = 7200
+        max_age           = 7200
         allow_credentials = true
       }
     }
@@ -130,12 +130,12 @@ run "test_cors_custom_origins" {
 run "test_cors_defaults" {
   variables {
     api_name = "test-api"
-        runtime = "nodejs20.x"
+    runtime  = "nodejs20.x"
 
     rest_api = {
       cors = {
-        allow_origins: ["*"]
-       }
+        allow_origins : ["*"]
+      }
     }
 
     handlers = {

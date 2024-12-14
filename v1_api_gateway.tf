@@ -13,7 +13,7 @@ locals {
     allow_methods     = coalesce(var.rest_api.cors.allow_methods, ["GET", "POST", "PUT", "DELETE", "OPTIONS"])
     allow_headers     = coalesce(var.rest_api.cors.allow_headers, ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key"])
     expose_headers    = coalesce(var.rest_api.cors.expose_headers, [])
-    max_age          = coalesce(var.rest_api.cors.max_age, 3600)
+    max_age           = coalesce(var.rest_api.cors.max_age, 3600)
     allow_credentials = coalesce(var.rest_api.cors.allow_credentials, false)
   } : null
 
@@ -218,7 +218,7 @@ resource "aws_api_gateway_method_response" "options" {
     "method.response.header.Access-Control-Allow-Origin"      = true
     "method.response.header.Access-Control-Allow-Credentials" = true
     "method.response.header.Access-Control-Expose-Headers"    = true
-    "method.response.header.Access-Control-Max-Age"          = true
+    "method.response.header.Access-Control-Max-Age"           = true
   }
 }
 
@@ -253,7 +253,7 @@ resource "aws_api_gateway_integration_response" "options" {
     "method.response.header.Access-Control-Allow-Origin"      = "'${join(",", local.cors_config.allow_origins)}'"
     "method.response.header.Access-Control-Allow-Credentials" = "'${local.cors_config.allow_credentials}'"
     "method.response.header.Access-Control-Expose-Headers"    = "'${join(",", local.cors_config.expose_headers)}'"
-    "method.response.header.Access-Control-Max-Age"          = "'${local.cors_config.max_age}'"  }
+  "method.response.header.Access-Control-Max-Age" = "'${local.cors_config.max_age}'" }
 
   depends_on = [aws_api_gateway_integration.options]
 }

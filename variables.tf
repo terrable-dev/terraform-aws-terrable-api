@@ -78,7 +78,7 @@ variable "rest_api" {
       allow_methods     = optional(list(string), ["GET", "POST", "PUT", "DELETE", "OPTIONS"])
       allow_headers     = optional(list(string), ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key", "X-Amz-Security-Token"])
       expose_headers    = optional(list(string), [])
-      max_age          = optional(number, 3600)
+      max_age           = optional(number, 3600)
       allow_credentials = optional(bool, false)
     }))
   })
