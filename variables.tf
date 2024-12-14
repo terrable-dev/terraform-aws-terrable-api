@@ -73,6 +73,14 @@ variable "rest_api" {
     endpoint_type    = optional(string, "REGIONAL")
     vpc_endpoint_ids = optional(list(string))
     runtime          = optional(string)
+    cors = optional(object({
+      allow_origins     = list(string)
+      allow_methods     = optional(list(string), ["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+      allow_headers     = optional(list(string), ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key", "X-Amz-Security-Token"])
+      expose_headers    = optional(list(string), [])
+      max_age          = optional(number, 3600)
+      allow_credentials = optional(bool, false)
+    }))
   })
   default = null
 
