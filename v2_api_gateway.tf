@@ -35,6 +35,18 @@ resource "aws_apigatewayv2_api" "api_gateway" {
   name          = var.api_name
   protocol_type = "HTTP"
   tags          = try(var.http_api.tags, null)
+
+  dynamic "cors_configuration" {
+    for_each = try(var.http_api.cors, null) != null ? [var.http_api.cors] : []
+    content {
+      allow_headers     = cors_configuration.value.allow_headers
+      allow_methods     = cors_configuration.value.allow_methods
+      allow_origins     = cors_configuration.value.allow_origins
+      expose_headers    = cors_configuration.value.expose_headers
+      max_age           = cors_configuration.value.max_age
+      allow_credentials = cors_configuration.value.allow_credentials
+    }
+  }
 }
 
 resource "aws_apigatewayv2_api_mapping" "custom_domain_mapping" {
