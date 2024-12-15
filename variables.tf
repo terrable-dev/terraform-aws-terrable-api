@@ -72,7 +72,6 @@ variable "rest_api" {
     tags             = optional(map(string))
     endpoint_type    = optional(string, "REGIONAL")
     vpc_endpoint_ids = optional(list(string))
-    runtime          = optional(string)
     cors = optional(object({
       allow_origins     = list(string)
       allow_methods     = optional(list(string), ["GET", "POST", "PUT", "DELETE", "OPTIONS"])
