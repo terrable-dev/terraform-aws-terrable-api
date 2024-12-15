@@ -27,44 +27,52 @@ run "test_cors_configuration" {
     }
   }
 
-  # Test ROOT path OPTIONS configuration
   assert {
-    condition = (
-      aws_api_gateway_method.options["/"].http_method == "OPTIONS" &&
-      aws_api_gateway_method.options["/"].authorization == "NONE"
-    )
+    condition     = aws_api_gateway_method.options["/"].http_method == "OPTIONS"
     error_message = "Root OPTIONS method not configured correctly"
   }
 
-  # Test response parameters for root OPTIONS
   assert {
-    condition = (
-      aws_api_gateway_method_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Headers"] == true &&
-      aws_api_gateway_method_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Methods"] == true &&
-      aws_api_gateway_method_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Origin"] == true
-    )
-    error_message = "Root OPTIONS method response headers not configured correctly"
+    condition     = aws_api_gateway_method.options["/"].authorization == "NONE"
+    error_message = "Root OPTIONS method authorization not set to NONE"
   }
 
-  # Test MOCK integration type for root
+  assert {
+    condition     = aws_api_gateway_method_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Headers"] == true
+    error_message = "Root OPTIONS method response header for Access-Control-Allow-Headers not configured correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_method_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Methods"] == true
+    error_message = "Root OPTIONS method response header for Access-Control-Allow-Methods not configured correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_method_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Origin"] == true
+    error_message = "Root OPTIONS method response header for Access-Control-Allow-Origin not configured correctly"
+  }
+
   assert {
     condition     = aws_api_gateway_integration.options["/"].type == "MOCK"
     error_message = "Integration type is not MOCK"
   }
 
-  # Test integration response parameters for root
   assert {
-    condition = (
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Origin"] == "'*'" &&
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Methods"] == "'GET,POST,PUT,DELETE,OPTIONS'" &&
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Max-Age"] == "'3600'"
-    )
-    error_message = "Root OPTIONS integration response parameters not configured correctly"
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Origin"] == "'*'"
+    error_message = "Root OPTIONS integration response parameter for Access-Control-Allow-Origin not configured correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Methods"] == "'GET,POST,PUT,DELETE,OPTIONS'"
+    error_message = "Root OPTIONS integration response parameter for Access-Control-Allow-Methods not configured correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Max-Age"] == "'3600'"
+    error_message = "Root OPTIONS integration response parameter for Access-Control-Max-Age not configured correctly"
   }
 }
 
-
-# Test CORS disabled
 run "test_cors_disabled" {
   variables {
     api_name = "test-api"
@@ -88,7 +96,6 @@ run "test_cors_disabled" {
   }
 }
 
-# Test CORS with custom origins
 run "test_cors_custom_origins" {
   variables {
     api_name = "test-api"
@@ -113,17 +120,26 @@ run "test_cors_custom_origins" {
         }
       }
     }
-
   }
 
   assert {
-    condition = (
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Origin"] == "'https://example.com,https://test.com'" &&
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Methods"] == "'GET,POST'" &&
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Credentials"] == "'true'" &&
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Max-Age"] == "'7200'"
-    )
-    error_message = "Custom CORS configuration not applied correctly"
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Origin"] == "'https://example.com,https://test.com'"
+    error_message = "Custom CORS configuration for Allow-Origin not applied correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Methods"] == "'GET,POST'"
+    error_message = "Custom CORS configuration for Allow-Methods not applied correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Credentials"] == "'true'"
+    error_message = "Custom CORS configuration for Allow-Credentials not applied correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Max-Age"] == "'7200'"
+    error_message = "Custom CORS configuration for Max-Age not applied correctly"
   }
 }
 
@@ -146,22 +162,30 @@ run "test_cors_defaults" {
         }
       }
     }
-
   }
 
   assert {
-    condition = (
-      # Default allow_methods should be ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Methods"] == "'GET,POST,PUT,DELETE,OPTIONS'" &&
-      # Default allow_headers should be ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key"]
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Headers"] == "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'" &&
-      # Default expose_headers should be []
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Expose-Headers"] == "''" &&
-      # Default max_age should be 3600
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Max-Age"] == "'3600'" &&
-      # Default allow_credentials should be false
-      aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Credentials"] == "'false'"
-    )
-    error_message = "Default CORS configuration not applied correctly"
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Methods"] == "'GET,POST,PUT,DELETE,OPTIONS'"
+    error_message = "Default CORS configuration for Allow-Methods not applied correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Headers"] == "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+    error_message = "Default CORS configuration for Allow-Headers not applied correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Expose-Headers"] == "''"
+    error_message = "Default CORS configuration for Expose-Headers not applied correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Max-Age"] == "'3600'"
+    error_message = "Default CORS configuration for Max-Age not applied correctly"
+  }
+
+  assert {
+    condition     = aws_api_gateway_integration_response.options["/"].response_parameters["method.response.header.Access-Control-Allow-Credentials"] == "'false'"
+    error_message = "Default CORS configuration for Allow-Credentials not applied correctly"
   }
 }

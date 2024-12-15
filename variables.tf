@@ -104,7 +104,16 @@ variable "http_api" {
     custom_domain  = optional(string)
     hosted_zone_id = optional(string)
     tags           = optional(map(string))
+    cors = optional(object({
+      allow_origins     = list(string)
+      allow_methods     = optional(list(string), ["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+      allow_headers     = optional(list(string), ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key", "X-Amz-Security-Token"])
+      expose_headers    = optional(list(string), [])
+      max_age           = optional(number, 3600)
+      allow_credentials = optional(bool, false)
+    }))
   })
+  
   default = null
 
   validation {

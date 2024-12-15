@@ -10,11 +10,11 @@ locals {
 
   cors_config = try(var.rest_api.cors, null) != null ? {
     allow_origins     = var.rest_api.cors.allow_origins
-    allow_methods     = coalesce(var.rest_api.cors.allow_methods, ["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-    allow_headers     = coalesce(var.rest_api.cors.allow_headers, ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key"])
-    expose_headers    = coalesce(var.rest_api.cors.expose_headers, [])
-    max_age           = coalesce(var.rest_api.cors.max_age, 3600)
-    allow_credentials = coalesce(var.rest_api.cors.allow_credentials, false)
+    allow_methods     = var.rest_api.cors.allow_methods
+    allow_headers     = var.rest_api.cors.allow_headers
+    expose_headers    = var.rest_api.cors.expose_headers
+    max_age           = var.rest_api.cors.max_age
+    allow_credentials = var.rest_api.cors.allow_credentials
   } : null
 
   cors_resources = local.cors_config != null ? merge(
