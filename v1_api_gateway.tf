@@ -156,7 +156,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
     aws_api_gateway_resource.lambda_resources,
     aws_api_gateway_method.lambda_methods,
     aws_api_gateway_integration.lambda_integrations,
-    aws_apigatewayv2_domain_name.custom_domain,
+    aws_api_gateway_domain_name.custom_domain,
     aws_api_gateway_rest_api_policy.api_policy,
     aws_api_gateway_integration_response.options,
     aws_api_gateway_method_response.cors
@@ -178,7 +178,7 @@ resource "aws_api_gateway_base_path_mapping" "mapping" {
   count       = local.api_gateway_version == "v1" && local.create_domain ? 1 : 0
   api_id      = aws_api_gateway_rest_api.api_gateway[0].id
   stage_name  = aws_api_gateway_stage.stage[0].stage_name
-  domain_name = aws_apigatewayv2_domain_name.custom_domain[0].domain_name
+  domain_name = aws_api_gateway_domain_name.custom_domain[0].domain_name
 }
 
 resource "aws_api_gateway_method_settings" "settings" {
