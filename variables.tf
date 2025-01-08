@@ -93,8 +93,8 @@ variable "rest_api" {
 
 variable "http_api" {
   type = object({
-    custom_domain  = optional(string)
-    tags           = optional(map(string))
+    custom_domain = optional(string)
+    tags          = optional(map(string))
     cors = optional(object({
       allow_origins     = list(string)
       allow_methods     = optional(list(string), ["GET", "POST", "PUT", "DELETE", "OPTIONS"])

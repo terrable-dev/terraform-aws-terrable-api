@@ -7,7 +7,7 @@ variables {
   runtime  = "nodejs20.x"
 
   rest_api = {
-    custom_domain  = "testdomain.test.com"
+    custom_domain = "testdomain.test.com"
   }
   handlers = {
     TestHandler : {
