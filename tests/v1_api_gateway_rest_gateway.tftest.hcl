@@ -8,7 +8,6 @@ variables {
 
   rest_api = {
     custom_domain  = "test.domain.com"
-    hosted_zone_id = "HZID"
   }
   handlers = {
     TestHandler : {
