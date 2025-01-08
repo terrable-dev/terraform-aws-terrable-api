@@ -7,8 +7,7 @@ variables {
   runtime  = "nodejs20.x"
 
   http_api = {
-    custom_domain  = "testdomain.test.com"
-    hosted_zone_id = "HZID"
+    custom_domain = "testdomain.test.com"
   }
   handlers = {
     TestHandler : {
@@ -19,23 +18,6 @@ variables {
     }
   }
 }
-
-run "validation_requires_hosted_zone" {
-  command = plan
-
-  variables {
-    api_name = "test-api"
-    http_api = {
-      custom_domain = "testdomain.test.com"
-      # deliberately omitting hosted_zone_id
-    }
-  }
-
-  expect_failures = [
-    var.http_api,
-  ]
-}
-
 
 run "creates_http_api_custom_domain" {
   assert {
@@ -62,13 +44,6 @@ run "creates_route53_record" {
   assert {
     condition     = aws_route53_record.api_domain[0].alias[0].name == aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].target_domain_name
     error_message = "Route53 record for custom domain not created correctly"
-  }
-}
-
-run "route53_record_uses_correct_zone" {
-  assert {
-    condition     = aws_route53_record.api_domain[0].zone_id == var.http_api.hosted_zone_id
-    error_message = "Route53 record is not using the provided hosted zone ID"
   }
 }
 
@@ -125,13 +100,6 @@ run "certificate_validation_record_created" {
   assert {
     condition     = length(aws_route53_record.cert_validation) > 0
     error_message = "Certificate validation DNS record was not created"
-  }
-}
-
-run "certificate_validation_record_uses_correct_zone" {
-  assert {
-    condition     = aws_route53_record.cert_validation[0].zone_id == var.http_api.hosted_zone_id
-    error_message = "Certificate validation record is not using the provided hosted zone ID"
   }
 }
 

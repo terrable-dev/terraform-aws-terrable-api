@@ -19,7 +19,7 @@ resource "aws_apigatewayv2_domain_name" "custom_domain" {
 
 resource "aws_route53_record" "api_domain" {
   count   = local.create_domain ? 1 : 0
-  zone_id = local.zone_id
+  zone_id = data.aws_route53_zone.domain_zone[0].zone_id
   name    = local.custom_domain
   type    = "A"
 
@@ -28,8 +28,4 @@ resource "aws_route53_record" "api_domain" {
     zone_id                = aws_apigatewayv2_domain_name.custom_domain[0].domain_name_configuration[0].hosted_zone_id
     evaluate_target_health = false
   }
-
-  depends_on = [
-    aws_apigatewayv2_domain_name.custom_domain,
-  ]
 }
