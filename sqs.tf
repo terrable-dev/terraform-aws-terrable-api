@@ -11,30 +11,8 @@ resource "aws_lambda_event_source_mapping" "sqs_event_source" {
   
   depends_on = [aws_iam_role_policy.sqs_policy]
 
-  dynamic "scaling_config" {
-    for_each = try(each.value.maximum_concurrency, null) != null ? [1] : []
-    content {
-      maximum_concurrency = each.value.maximum_concurrency
-    }
-  }
-}
-
-data "aws_iam_policy_document" "sqs_policy" {
-  for_each = {
-    for name, handler in var.handlers : name => handler.sqs
-    if handler.sqs != null
-  }
-
-  statement {
-    sid    = "SQSPermissions"
-    effect = "Allow"
-    actions = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes",
-      "sqs:ChangeMessageVisibility"
-    ]
-    resources = [each.value.queue]
+  scaling_config {
+    maximum_concurrency = each.value.maximum_concurrency
   }
 }
 
@@ -44,7 +22,23 @@ resource "aws_iam_role_policy" "sqs_policy" {
     if handler.sqs != null
   }
 
-  name   = "sqs-permissions-${each.key}"
-  role   = split("/", aws_lambda_function.handlers[each.key].role)[1]
-  policy = data.aws_iam_policy_document.sqs_policy[each.key].json
+  name = "sqs-permissions-${each.key}"
+  role = split("/", aws_lambda_function.handlers[each.key].role)[1]
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "SQSPermissions"
+        Effect = "Allow"
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:ChangeMessageVisibility"
+        ]
+        Resource = [each.value.queue]
+      }
+    ]
+  })
 }

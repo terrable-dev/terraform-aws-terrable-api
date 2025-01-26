@@ -32,7 +32,7 @@ run "event_source_mapping_configuration" {
   }
 
   assert {
-    condition     = aws_lambda_event_source_mapping.sqs_event_source["SqsHandler"].scaling_config[0].max_concurrency == 4
+    condition     = aws_lambda_event_source_mapping.sqs_event_source["SqsHandler"].scaling_config[0].maximum_concurrency == 4
     error_message = "Incorrect concurrency"
   }
 

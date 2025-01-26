@@ -43,8 +43,8 @@ variable "handlers" {
     http = optional(map(string))
     sqs = optional(object({
       queue: string
-      batch_size: optional(number)
-      maximum_concurrency: optional(number)
+      batch_size: optional(number, 1)
+      maximum_concurrency: optional(number, 2)
     }))
     tags    = optional(map(string))
     runtime = optional(string)
