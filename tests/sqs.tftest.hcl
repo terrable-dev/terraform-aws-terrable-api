@@ -10,8 +10,8 @@ variables {
     SqsHandler = {
       source = "./tests/handler.js"
       sqs = {
-        queue = "sqs:queue:arn"
-        batch_size = 5
+        queue               = "sqs:queue:arn"
+        batch_size          = 5
         maximum_concurrency = 4
       }
     }
