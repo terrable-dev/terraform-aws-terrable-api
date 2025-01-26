@@ -8,14 +8,22 @@ locals {
       name             = handler_name,
       source           = handler.source,
       http             = try(handler.http, null),
+      sqs              = try(handler.sqs, null),
       environment_vars = merge(coalesce(var.global_environment_variables, {}), coalesce(handler.environment_variables, {}))
       tags             = handler.tags != null ? handler.tags : {}
       policies         = handler.policies
     }
   }
 
-  http_handlers = local.api_gateway_version == "v2" ? local.handlers : {}
-  rest_handlers = local.api_gateway_version == "v1" ? local.handlers : {}
+  http_handlers = {
+    for handler_name, handler in local.handlers : handler_name => handler
+    if handler.http != null && local.api_gateway_version == "v2"
+  }
+
+  rest_handlers = {
+    for handler_name, handler in local.handlers : handler_name => handler
+    if handler.http != null && local.api_gateway_version == "v1"
+  }
 }
 
 locals {
