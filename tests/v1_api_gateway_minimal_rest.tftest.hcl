@@ -7,8 +7,8 @@ variables {
   runtime  = "nodejs20.x"
 
   rest_api = {
-
   }
+
   handlers = {
     TestHandler : {
       source = "./tests/handler.js"

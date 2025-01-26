@@ -26,7 +26,7 @@ resource "aws_iam_role" "lambda_role" {
 # Base permissions
 
 resource "aws_lambda_permission" "lambda_api_gateway_execution_permission" {
-  for_each = local.handlers
+  for_each = merge(local.rest_handlers, local.http_handlers)
 
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"

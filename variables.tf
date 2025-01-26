@@ -40,7 +40,12 @@ variable "handlers" {
     source : string
     policies : optional(map(string))
     environment_variables : optional(map(string))
-    http    = map(string)
+    http = optional(map(string))
+    sqs = optional(object({
+      queue : string
+      batch_size : optional(number, 1)
+      maximum_concurrency : optional(number, 2)
+    }))
     tags    = optional(map(string))
     runtime = optional(string)
   }))
@@ -48,8 +53,8 @@ variable "handlers" {
   validation {
     condition = alltrue([
       for handler in values(var.handlers) :
-      alltrue([
-        for method in keys(handler.http) :
+      handler.http == null || alltrue([
+        for method in(handler.http != null ? keys(handler.http) : []) :
         contains(["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "ANY"], upper(method))
       ])
     ])
