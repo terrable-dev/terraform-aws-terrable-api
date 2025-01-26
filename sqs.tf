@@ -8,7 +8,7 @@ resource "aws_lambda_event_source_mapping" "sqs_event_source" {
   function_name    = aws_lambda_function.handlers[each.key].arn
   batch_size       = each.value.batch_size
   enabled          = true
-  
+
   depends_on = [aws_iam_role_policy.sqs_policy]
 
   scaling_config {
