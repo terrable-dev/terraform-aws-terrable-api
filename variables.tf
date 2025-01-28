@@ -40,6 +40,7 @@ variable "handlers" {
     source : string
     policies : optional(map(string))
     environment_variables : optional(map(string))
+    timeout : optional(number, 3)
     http = optional(map(string))
     sqs = optional(object({
       queue : string

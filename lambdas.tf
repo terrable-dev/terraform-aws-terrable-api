@@ -81,6 +81,7 @@ resource "aws_lambda_function" "handlers" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.handler"
   runtime          = each.value.runtime
+  timeout          = each.value.timeout
 
   environment {
     variables = each.value.environment_vars
