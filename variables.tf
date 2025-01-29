@@ -4,8 +4,14 @@ variable "api_name" {
 
 variable "runtime" {
   type        = string
-  description = "Default runtime for all handlers if not specified individually"
+  description = "Default runtime for all handlers"
   default     = null
+}
+
+variable "timeout" {
+  type        = number
+  description = "Default timeout (in seconds) for all handlers"
+  default     = 3
 }
 
 variable "vpc" {
@@ -40,7 +46,7 @@ variable "handlers" {
     source : string
     policies : optional(map(string))
     environment_variables : optional(map(string))
-    timeout : optional(number, 3)
+    timeout : optional(number)
     http = optional(map(string))
     sqs = optional(object({
       queue : string
