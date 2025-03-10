@@ -12,7 +12,7 @@ mock_resource "aws_lambda_permission" {
 
 mock_resource "aws_lambda_function" {
   defaults = {
-    arn = "arn:aws:lambda:us-east-1:123456789012:function:test-function"
+    arn        = "arn:aws:lambda:us-east-1:123456789012:function:test-function"
     invoke_arn = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:123456789012:function:test-function/invocations"
   }
 }

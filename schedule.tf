@@ -11,8 +11,8 @@ resource "aws_cloudwatch_event_rule" "handler_cron" {
 resource "aws_cloudwatch_event_target" "lambda_target" {
   for_each = aws_cloudwatch_event_rule.handler_cron
 
-  rule      = aws_cloudwatch_event_rule.handler_cron[each.key].name
-  arn       = aws_lambda_function.handlers[each.key].arn
+  rule = aws_cloudwatch_event_rule.handler_cron[each.key].name
+  arn  = aws_lambda_function.handlers[each.key].arn
 }
 
 resource "aws_lambda_permission" "allow_eventbridge" {
