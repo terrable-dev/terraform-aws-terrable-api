@@ -53,6 +53,9 @@ variable "handlers" {
       batch_size : optional(number, 1)
       maximum_concurrency : optional(number, 2)
     }))
+    schedule = optional(object({
+      cron : string
+    }))
     tags    = optional(map(string))
     runtime = optional(string)
   }))

@@ -6,11 +6,10 @@ data "node-lambda-packager_package" "handlers" {
     "--external:@aws-sdk*",
     "--platform=node",
     "--target=es2021",
-    "--outdir=dist",
   ]
 
-  entrypoint        = "${path.root}/${each.value.source}"
-  working_directory = "${path.root}/${dirname(each.value.source)}"
+  entrypoint        = "${path.root}//${each.value.source}"
+  working_directory = ""
 }
 
 locals {
