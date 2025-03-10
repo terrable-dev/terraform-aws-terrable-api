@@ -12,6 +12,7 @@ mock_resource "aws_lambda_permission" {
 
 mock_resource "aws_lambda_function" {
   defaults = {
+    arn = "arn:aws:lambda:us-east-1:123456789012:function:test-function"
     invoke_arn = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:123456789012:function:test-function/invocations"
   }
 }
@@ -70,7 +71,6 @@ mock_resource "aws_acm_certificate" {
 }
 
 # API Gateway V1
-
 mock_resource "aws_api_gateway_rest_api" {
   defaults = {
     execution_arn = "arn:aws:execute-api:us-west-2:123456789012:abcdef123"
@@ -82,5 +82,19 @@ mock_data "aws_ssm_parameter" {
   defaults = {
     name  = "/mocked-ssm"
     value = "ssm-mocked-value"
+  }
+}
+
+# Mock for cloudwatch event rule
+mock_resource "aws_cloudwatch_event_rule" {
+  defaults = {
+    arn = "arn:aws:events:us-east-1:123456789012:rule/ScheduledHandler-scheduled"
+  }
+}
+
+# Cloudwatch event target
+mock_resource "aws_cloudwatch_event_target" {
+  defaults = {
+    arn = "arn:aws:events:us-east-1:123456789012:rule/ScheduledHandler-scheduled"
   }
 }
