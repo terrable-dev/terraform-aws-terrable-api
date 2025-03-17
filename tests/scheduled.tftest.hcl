@@ -10,7 +10,7 @@ variables {
     ScheduledHandler = {
       source = "./tests/handler.js"
       schedule = {
-        cron = "cron(0 */2 * * ? *)"
+        expression = "cron(0 */2 * * ? *)"
       }
     }
   }
@@ -18,7 +18,7 @@ variables {
 
 run "creates_cloudwatch_event_rule" {
   assert {
-    condition     = length(aws_cloudwatch_event_rule.handler_cron) == 1
+    condition     = length(aws_cloudwatch_event_rule.handler_scheduled) == 1
     error_message = "Cloudwatch event rule not created"
   }
 }

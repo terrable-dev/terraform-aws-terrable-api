@@ -54,7 +54,7 @@ variable "handlers" {
       maximum_concurrency : optional(number, 2)
     }))
     schedule = optional(object({
-      cron : string
+      expression : string
     }))
     tags    = optional(map(string))
     runtime = optional(string)
