@@ -22,7 +22,6 @@ locals {
       timeout = coalesce(handler.timeout, var.timeout)
       raw_environment_vars = merge(
         try(var.global_environment_variables, {}),
-        try(handler.environment_variables, {})
       )
       tags     = handler.tags != null ? handler.tags : {}
       policies = handler.policies
@@ -36,13 +35,6 @@ locals {
       for k, v in try(var.global_environment_variables, {}) :
       "global-${k}" => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
     },
-    # Handler-specific SSM parameters
-    merge([
-      for handler_name, handler in local.base_handlers : {
-        for k, v in handler.raw_environment_vars :
-        "${handler_name}-${k}" => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
-      }
-    ]...)
   )
 
   env_var_handlers = {
