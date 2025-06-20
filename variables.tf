@@ -127,7 +127,7 @@ variable "global_policies" {
   default = {}
 }
 
-variable "global_environment_variables" {
+variable "environment_vars" {
   type    = map(string)
   default = {}
 }

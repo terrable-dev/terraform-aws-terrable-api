@@ -21,7 +21,7 @@ locals {
       http    = try(handler.http, null)
       timeout = coalesce(handler.timeout, var.timeout)
       raw_environment_vars = merge(
-        try(var.global_environment_variables, {}),
+        try(var.environment_vars, {}),
       )
       tags     = handler.tags != null ? handler.tags : {}
       policies = handler.policies
@@ -32,7 +32,7 @@ locals {
   ssm_params = merge(
     # Global SSM parameters
     {
-      for k, v in try(var.global_environment_variables, {}) :
+      for k, v in try(var.environment_vars, {}) :
       "global-${k}" => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
     },
   )
