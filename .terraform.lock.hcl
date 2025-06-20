@@ -6,6 +6,7 @@ provider "registry.terraform.io/hashicorp/aws" {
   constraints = "~> 5.0"
   hashes = [
     "h1:36n0sS0B/ZL0yr4JsW07TT+WtLmozvlKTAA/MQWpDY8=",
+    "h1:aA/+c37GlH4+CsV49So/+/TsdpfwRNCQLP3CglLjjmw=",
     "zh:01b01b132b70df918f735898f1ad012ab3033d1b909b2e38950d16964d94c084",
     "zh:28bc6ee7b0c88b1a48f315509ad390fb1e8f39bebe0f7a43c22b1a63825251d1",
     "zh:31f9043a4c3538883ab9b9d3b399dae62e4552251e6a2b1da13ec3a2018a027d",
@@ -29,6 +30,7 @@ provider "registry.terraform.io/jsherz/node-lambda-packager" {
   constraints = "1.3.1"
   hashes = [
     "h1:ETPM/Jp+5GYK1qYuln+1S/nTc2499Jvtp48YG1w0Bbs=",
+    "h1:knhqy98aGUunHX7UdrMfMtu0pDiYAZZjc1i0U4YJTT8=",
     "zh:10450c5f2b4fa67d728e1cebdabea3f5796da853f36d277afc1d571f942f7aa9",
     "zh:11b6a90f79d55c581984ba171559c6550731190cfcedf0aaa5890c27d328bc0e",
     "zh:1beea68827f892e804a9d1db481dcf1beb6f9b5b327e6a2fe716030d089daa44",

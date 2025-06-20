@@ -45,7 +45,6 @@ variable "handlers" {
   type = map(object({
     source : string
     policies : optional(map(string))
-    environment_variables : optional(map(string))
     timeout : optional(number)
     http = optional(map(string))
     sqs = optional(object({
@@ -128,7 +127,7 @@ variable "global_policies" {
   default = {}
 }
 
-variable "global_environment_variables" {
+variable "environment_vars" {
   type    = map(string)
   default = {}
 }
