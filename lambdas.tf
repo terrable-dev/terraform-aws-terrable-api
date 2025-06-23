@@ -44,8 +44,8 @@ locals {
       runtime = handler.runtime
       http    = handler.http
       timeout = handler.timeout
-      environment_variables = {
-        for k, v in handler.environment_variables :
+      environment_vars = {
+        for k, v in handler.environment_vars :
         k => (
           can(regex("^SSM:", v)) ?
           data.aws_ssm_parameter.env_vars[
