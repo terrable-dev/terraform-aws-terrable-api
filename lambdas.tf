@@ -21,7 +21,7 @@ locals {
       http    = try(handler.http, null)
       timeout = coalesce(handler.timeout, var.timeout)
       raw_environment_vars = merge(
-        try(var.environment_vars, {}),
+        try(var.environment_variables, {}),
       )
       tags     = handler.tags != null ? handler.tags : {}
       policies = handler.policies
@@ -32,7 +32,7 @@ locals {
   ssm_params = merge(
     # Global SSM parameters
     {
-      for k, v in try(var.environment_vars, {}) :
+      for k, v in try(var.environment_variables, {}) :
       "global-${k}" => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
     },
   )
@@ -44,8 +44,8 @@ locals {
       runtime = handler.runtime
       http    = handler.http
       timeout = handler.timeout
-      environment_vars = {
-        for k, v in handler.raw_environment_vars :
+      environment_variables = {
+        for k, v in handler.environment_variables :
         k => (
           can(regex("^SSM:", v)) ?
           data.aws_ssm_parameter.env_vars[
@@ -77,7 +77,7 @@ resource "aws_lambda_function" "handlers" {
   timeout          = each.value.timeout
 
   environment {
-    variables = each.value.environment_vars
+    variables = each.value.environment_variables
   }
 
   vpc_config {
