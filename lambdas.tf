@@ -13,6 +13,15 @@ data "node-lambda-packager_package" "handlers" {
 }
 
 locals {
+  # Collect all SSM parameters (including global ones)
+  ssm_params = merge(
+    {
+      for k, v in try(var.environment_variables, {}) :
+      k => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
+    },
+  )
+
+
   base_handlers = {
     for handler_name, handler in var.handlers : handler_name => {
       name    = handler_name
@@ -20,42 +29,15 @@ locals {
       runtime = coalesce(handler.runtime, var.runtime)
       http    = try(handler.http, null)
       timeout = coalesce(handler.timeout, var.timeout)
-      raw_environment_vars = merge(
-        try(var.environment_vars, {}),
-      )
-      tags     = handler.tags != null ? handler.tags : {}
-      policies = handler.policies
-    }
-  }
-
-  # Collect all SSM parameters (including global ones)
-  ssm_params = merge(
-    # Global SSM parameters
-    {
-      for k, v in try(var.environment_vars, {}) :
-      "global-${k}" => trimprefix(v, "SSM:") if can(regex("^SSM:", v))
-    },
-  )
-
-  env_var_handlers = {
-    for handler_name, handler in local.base_handlers : handler_name => {
-      name    = handler.name
-      source  = handler.source
-      runtime = handler.runtime
-      http    = handler.http
-      timeout = handler.timeout
-      environment_vars = {
-        for k, v in handler.raw_environment_vars :
+      environment_variables = {
+        for k, v in try(var.environment_variables, {}) :
         k => (
           can(regex("^SSM:", v)) ?
-          data.aws_ssm_parameter.env_vars[
-            contains(keys(local.ssm_params), "${handler_name}-${k}") ?
-            "${handler_name}-${k}" : "global-${k}"
-          ].value :
+          data.aws_ssm_parameter.env_vars[k].value :
           v
         )
       }
-      tags     = handler.tags
+      tags     = handler.tags != null ? handler.tags : {}
       policies = handler.policies
     }
   }
@@ -67,7 +49,7 @@ data "aws_ssm_parameter" "env_vars" {
 }
 
 resource "aws_lambda_function" "handlers" {
-  for_each         = local.env_var_handlers
+  for_each         = local.base_handlers
   filename         = data.node-lambda-packager_package.handlers[each.key].filename
   function_name    = "${var.api_name}-${each.value.name}"
   source_code_hash = data.node-lambda-packager_package.handlers[each.key].source_code_hash
@@ -77,7 +59,7 @@ resource "aws_lambda_function" "handlers" {
   timeout          = each.value.timeout
 
   environment {
-    variables = each.value.environment_vars
+    variables = each.value.environment_variables
   }
 
   vpc_config {

@@ -9,7 +9,7 @@ locals {
       source           = handler.source,
       http             = try(handler.http, null),
       sqs              = try(handler.sqs, null),
-      environment_vars = coalesce(var.environment_vars, {})
+      environment_vars = coalesce(var.environment_variables, {})
       tags             = handler.tags != null ? handler.tags : {}
       policies         = handler.policies
     }
